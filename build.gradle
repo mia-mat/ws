@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'ws.mia'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1'
 
 java {
     toolchain {
@@ -23,4 +23,5 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
     implementation 'com.googlecode.htmlcompressor:htmlcompressor:1.5.2'
+    implementation 'org.apache.commons:commons-text:1.13.1'
 }

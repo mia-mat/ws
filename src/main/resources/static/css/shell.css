@@ -1,0 +1,78 @@
+/* disable mouse selection */
+* {
+    user-select: none;
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none;    /* Firefox */
+    -ms-user-select: none;     /* Edge */
+}
+
+body {
+    background-color: rgb(22, 20, 25);
+}
+
+#shell {
+    display: block;
+}
+
+.shell-line {
+    font-family: Consolas, monospace;
+    color: rgb(240, 217, 255);
+    font-size: 16px;
+    margin-left: 6px;
+    margin-right: 2px;
+    margin-bottom: 3px;
+
+    line-height: 1.2;
+
+    display: block;
+
+    max-width: 100%; /* wrap */
+    width: 100%;
+
+    white-space: pre-wrap; /* don't trim whitespace */
+
+    position: relative; /* for caret positioning */
+}
+
+.shell-line-input,
+.shell-line-static {
+    margin-left: 0;
+    margin-right: 0;
+    width: auto;
+    display: inline;
+
+    word-break: break-all;
+}
+
+.shell-line-static {
+    color: rgba(240, 217, 255, 0.7);
+}
+
+
+#shell-caret {
+    font-family: Consolas, monospace;
+    color: rgb(240, 217, 255);
+    font-size: 16px;
+    font-weight: bold;
+    user-select: none;
+
+    display: inline-flex;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+}
+
+.blinking {
+    animation: blink-animation 0.8s steps(1) infinite;
+}
+
+@keyframes blink-animation {
+    0%, 50% {
+        opacity: 1;
+    }
+    50.01%, 100% {
+        opacity: 0;
+    }
+}
