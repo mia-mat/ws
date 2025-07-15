@@ -2,13 +2,17 @@ package ws.mia.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.util.ArrayUtils;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.reflect.Method;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Locale;
-import java.util.Random;
+import java.util.*;
 
 @Service
 public class ShellService {
@@ -41,5 +45,56 @@ public class ShellService {
 
 		return List.of("Last Login: " + formattedTime + " from " + lastLoginAddress);
 	}
+
+	// retrieve once
+	private static final Map<String, Method> commandMethods;
+	static {
+		commandMethods = new HashMap<>();
+		for (Method method : ShellService.class.getDeclaredMethods()) {
+			if(method.isAnnotationPresent(ShellCommand.class)
+			&& Arrays.equals(method.getParameterTypes(), new Class[]{String.class, String[].class})) {
+				ShellCommand commandAnnotation = method.getAnnotation(ShellCommand.class);
+				commandMethods.put(commandAnnotation.value(), method);
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<String> executeCommand(final String command) {
+		String[] args = command.split(" ");
+		for(int i = 0; i < args.length; i++) {
+			args[i] = args[i].replaceFirst("^\\s+", "").trim(); // remove whitespace
+		}
+
+		if(!commandMethods.containsKey(args[0])) {
+			return List.of("-bash: " + args[0] + ": command not found");
+		}
+
+		try {
+			return (List<String>) commandMethods.get(args[0]).invoke(this, args[0], Arrays.copyOfRange(args, 1, args.length));
+		} catch (Exception e) {
+			return List.of("error while executing command: " + args[0] + ": " + e.getMessage());
+		}
+
+	}
+
+	@Target(ElementType.METHOD)
+	@Retention(RetentionPolicy.RUNTIME)
+	@interface ShellCommand {
+		String value(); // name
+	}
+
+	@ShellCommand("echo")
+	private List<String> commandEcho(final String commandName, final String[] args) {
+		String joinedArgs = String.join(" ", args);
+		return List.of(joinedArgs.split("\n"));
+	}
+
+	// have a fake neofetch/fastfetch
+	// exit to just stop input
+	// also ofc the basics:
+	// cat, ls, cd...
+	// just give no perms for most things with a message for that.
+
 
 }

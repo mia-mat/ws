@@ -23,4 +23,5 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
     implementation 'com.googlecode.htmlcompressor:htmlcompressor:1.5.2'
+    implementation 'org.apache.commons:commons-text:1.13.1'
 }

@@ -1,6 +1,7 @@
 package ws.mia.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import ws.mia.service.ShellService;
@@ -16,7 +17,6 @@ public class ShellController {
 		this.shellService = shellService;
 	}
 
-
 	@RequestMapping("/")
 	public String getSite(HttpServletRequest request) {
 		shellService.login(request);
@@ -24,25 +24,15 @@ public class ShellController {
 		return "shell";
 	}
 
-	@PostMapping("/executeShellCommand")
+	@PostMapping("/shell/execute")
 	@ResponseBody
-	public String executeCommand(@RequestBody String command) {
-		// ignore leading and trailing whitespace
-		command = command.replaceFirst("^\\s+", "").trim();
-		String[] args = command.split(" ");
-
-		if (args[0].equals("echo")) {
-			return command.substring(args[0].length() + 1).replaceFirst("^\\s+", "").trim();
-		} else {
-			return "-bash: " + args[0] + ": command not found";
-		}
-
-		// have a fake neofetch/fastfetch
-		// exit to just stop input
-
+	public List<String> executeCommand(@RequestBody String command) {
+		// JS gives us a sanitized input, but having actual \n's etc. is more useful here:
+		String unescapedCommand = StringEscapeUtils.unescapeJava(command);
+		return shellService.executeCommand(unescapedCommand);
 	}
 
-	@GetMapping("/shellMOTD")
+	@GetMapping("/shell/motd")
 	@ResponseBody
 	public List<String> getLastLogin() {
 		return shellService.getMOTD();

@@ -1,9 +1,13 @@
-body {
-    background-color: rgb(22, 20, 25);
+/* disable mouse selection */
+* {
+    user-select: none;
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none;    /* Firefox */
+    -ms-user-select: none;     /* IE/Edge */
 }
 
-html {
-    cursor: none;
+body {
+    background-color: rgb(22, 20, 25);
 }
 
 #shell {

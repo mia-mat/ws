@@ -76,7 +76,7 @@ function appendToCurrentLine(textToAppend) {
 async function execCurrentLine() {
     commandBuffer+=currentLineInputElement.textContent;
 
-    await fetch('/executeShellCommand', {
+    await fetch('/shell/execute', {
         method: 'POST',
         headers: {
             'Content-Type': 'text/plain',  // since your @RequestBody is String, plain text is fine
@@ -85,11 +85,13 @@ async function execCurrentLine() {
     })
         .then(response => {
             if (!response.ok) throw new Error(`HTTP error ${response.status}`);
-            return response.text();
+            return response.json();
         })
         .then(result => {
-            newLine("");
-            appendToCurrentLine(result);
+            result.forEach(line => {
+                newLine("");
+                appendToCurrentLine(line);
+            })
         })
         .catch(err => {
             console.error("Fetch error:", err);
@@ -99,7 +101,7 @@ async function execCurrentLine() {
 }
 
 async function printMOTD() {
-    const motdLines = await fetch('/shellMOTD')
+    const motdLines = await fetch('/shell/motd')
         .then(response => {
             if (!response.ok) throw new Error(`HTTP error ${response.status}`);
             return response.json();
@@ -125,7 +127,5 @@ async function main() {
 }
 
 main();
-
-// motd
 
 
