@@ -34,7 +34,7 @@ public class UptimeService {
 		if (days > 0) parts.add(days + " day" + (days > 1 ? "s" : ""));
 		if (hours > 0) parts.add(hours + " hour" + (hours > 1 ? "s" : ""));
 		if (minutes > 0) parts.add(minutes + " min" + (minutes > 1 ? "s" : ""));
-		if (seconds > 0 && parts.isEmpty()) // Only show seconds if nothing else is shown
+		if (seconds > 0 && parts.isEmpty()) // only show seconds if nothing else is shown
 			parts.add(seconds + " sec" + (seconds > 1 ? "s" : ""));
 
 		return String.join(", ", parts);

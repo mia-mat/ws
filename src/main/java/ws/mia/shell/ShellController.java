@@ -60,7 +60,7 @@ public class ShellController {
 					.httpOnly(true)
 					.secure(true)
 					.path("/")
-					.maxAge(3600*24) // 1 day
+					.maxAge(3600 * 24) // 1 day
 					.build();
 
 			return ResponseEntity.ok()
