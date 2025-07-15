@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 @Service
 public class ShellService {
 
+	public static final String LAUNCH_UI_ATTRIBUTE = "LAUNCH_UI";
 	DateTimeFormatter MOTD_DATE_FORMATTER = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss yyyy", Locale.ENGLISH);
 
 	private final UptimeService uptimeService;
@@ -83,10 +84,18 @@ public class ShellService {
 	public static class CommandResponse {
 		private final List<String> lines;
 		private ShellState state;
+		private final Boolean grantedRootAccess; // only true if the client will now be redirected to the root
 
 		public CommandResponse(List<String> lines, ShellState state) {
 			this.lines = lines;
 			this.state = state;
+			this.grantedRootAccess = false;
+		}
+
+		public CommandResponse(boolean grantedRootAccess) {
+			this.grantedRootAccess = grantedRootAccess;
+			this.lines = null;
+			this.state = null;
 		}
 
 		public CommandResponse(List<String> lines) {
@@ -105,6 +114,9 @@ public class ShellService {
 			this.state = newState;
 		}
 
+		public boolean isGrantedRootAccess() {
+			return grantedRootAccess;
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -115,6 +127,16 @@ public class ShellService {
 		}
 
 		if (!commandMethods.containsKey(args[0])) {
+			// special case for our launch-ui.sh file
+			// in the form of ./FILE_NAME <anything>
+			if(command.startsWith("./")) {
+				String fileDir = command.split(" ")[0].substring(2);
+				VirtualFile file = session.getState().getRelativeVirtualFile(fileDir);
+				if(file != null && file.exists() && file.getAttributes().contains(LAUNCH_UI_ATTRIBUTE)) {
+					return new CommandResponse(true);
+				}
+			}
+
 			return new CommandResponse(List.of("-bash: " + args[0] + ": command not found"), session.getState());
 		}
 
@@ -471,7 +493,6 @@ public class ShellService {
 			sourceFile.setName(newName, true);
 		}
 
-		// Add to new parent
 		destDir.addChild(sourceFile);
 
 		return List.of();

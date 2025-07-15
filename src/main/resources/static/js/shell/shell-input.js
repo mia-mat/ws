@@ -220,6 +220,11 @@ async function execCurrentLine() {
             return response.json();
         })
         .then(result => {
+            if(result.grantedRootAccess) {
+                window.location.href = "/"; // redirect to root
+                return;
+            }
+
             result.lines.forEach(line => {
                 newLine("");
                 appendToCurrentLine(line);

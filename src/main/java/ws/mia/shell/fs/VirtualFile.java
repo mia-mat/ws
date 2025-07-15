@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 public abstract class VirtualFile implements Serializable {
 
@@ -18,16 +20,18 @@ public abstract class VirtualFile implements Serializable {
 	@JsonIgnore // infinite recursion is not fun
 	private VirtualDirectory parent;
 
+	private List<String> attributes;
+
 	public VirtualFile(String name, VirtualDirectory parent) {
 		this.name = name;
 		this.parent = parent;
 		this.exists = true;
+		this.attributes = new ArrayList<>();
 	}
 
 	public VirtualFile(String name) {
-		this.name = name;
-		this.parent = null; // set by addChild method of VirtualDirectory
-		this.exists = true;
+		// parent set by addChild method of VirtualDirectory
+		this(name, null);
 	}
 
 
@@ -89,4 +93,11 @@ public abstract class VirtualFile implements Serializable {
 		return true;
 	}
 
+	public List<String> getAttributes() {
+		return attributes;
+	}
+
+	public void addAttribute(String a) {
+		attributes.add(a);
+	}
 }

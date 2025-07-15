@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 
 public class ShellState {
 	private static final Path ROOT_INIT_PATH = Paths.get("src/main/resources/initial-fs").toAbsolutePath();
+	private static final Path LAUNCH_UI_FILE_PATH = ROOT_INIT_PATH.resolve("home\\user\\launch-ui.sh");
 
 	private String username;
 	private boolean allowingInput;
@@ -72,7 +73,11 @@ public class ShellState {
 					dir.addChild(loadFromDisk(entryName, entry));
 				} else {
 					String content = Files.readString(entry);
-					dir.addChild(new VirtualRegularFile(entryName, content));
+					VirtualRegularFile file = new VirtualRegularFile(entryName, content);
+					if(entry.equals(LAUNCH_UI_FILE_PATH)) {
+						file.addAttribute(ShellService.LAUNCH_UI_ATTRIBUTE);
+					}
+					dir.addChild(file);
 				}
 			}
 		}
