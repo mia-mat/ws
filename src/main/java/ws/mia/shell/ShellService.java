@@ -1,4 +1,4 @@
-package ws.mia.service;
+package ws.mia.shell;
 
 import org.springframework.stereotype.Service;
 import ws.mia.SpringApplication;
@@ -62,7 +62,7 @@ public class ShellService {
 		List<Method> methods = new ArrayList<>();
 		for (Method method : ShellService.class.getDeclaredMethods()) {
 			if (method.isAnnotationPresent(ShellCommand.class)
-					&& Arrays.equals(method.getParameterTypes(), new Class[]{String.class, String[].class})) {
+					&& Arrays.equals(method.getParameterTypes(), new Class[]{ShellSession.class, String.class, String[].class})) {
 				methods.add(method);
 			}
 		}
@@ -71,38 +71,46 @@ public class ShellService {
 
 	public static class CommandResponse {
 		private final List<String> lines;
-		private final boolean allowFutureInput;
+		private ShellState state;
 
-		public CommandResponse(List<String> lines, boolean allowFutureInput) {
+		public CommandResponse(List<String> lines, ShellState state) {
 			this.lines = lines;
-			this.allowFutureInput = allowFutureInput;
+			this.state = state;
 		}
 
 		public CommandResponse(List<String> lines) {
-			this(lines, true);
+			this(lines, null);
 		}
 
 		public List<String> getLines() {
 			return lines;
 		}
 
-		public boolean getAllowFutureInput() {
-			return allowFutureInput;
+		public ShellState getState() {
+			return state;
 		}
+
+		public void setState(ShellState newState) {
+			this.state = newState;
+		}
+
 	}
 
-	public CommandResponse executeCommand(final String command) {
+	@SuppressWarnings("unchecked")
+	public CommandResponse executeCommand(final String command, ShellSession session) {
 		String[] args = command.split(" ");
 		for (int i = 0; i < args.length; i++) {
 			args[i] = args[i].replaceFirst("^\\s+", "").trim(); // remove whitespace
 		}
 
 		if (!commandMethods.containsKey(args[0])) {
-			return new CommandResponse(List.of("-bash: " + args[0] + ": command not found"));
+			return new CommandResponse(List.of("-bash: " + args[0] + ": command not found"), session.getState());
 		}
 
 		try {
-			return (CommandResponse) commandMethods.get(args[0]).invoke(this, args[0], Arrays.copyOfRange(args, 1, args.length));
+			CommandResponse response = new CommandResponse((List<String>) commandMethods.get(args[0]).invoke(this, session, args[0], Arrays.copyOfRange(args, 1, args.length)));
+			response.setState(session.getState()); // state reference modified by method
+			return response;
 		} catch (Exception e) {
 			return new CommandResponse(List.of("error while executing command: " + args[0] + ": " + e.getMessage()));
 		}
@@ -120,7 +128,7 @@ public class ShellService {
 	final static String NBSP = "\u00A0"; // used in place of lines of entirely spaces for shell (html) to display properly
 
 	@ShellCommand(value = "echo", argUsages = "[arg ...]")
-	private CommandResponse commandEcho(final String commandName, final String[] args) {
+	private List<String> commandEcho(final ShellSession session, final String commandName, final String[] args) {
 		String joinedArgs = String.join(" ", args);
 		String[] lines = joinedArgs.split("\n", -1);
 
@@ -138,16 +146,21 @@ public class ShellService {
 		if (output.isEmpty()) {
 			output.add(NBSP);
 		}
-		return new CommandResponse(output);
+		return output;
 	}
 
-	@ShellCommand("exit")
-	private CommandResponse commandExit(final String commandName, final String[] args) {
-		return new CommandResponse(List.of("logout", "Connection to mia.ws closed."), false);
+	@ShellCommand({"exit", "logout"})
+	private List<String> commandExit(final ShellSession session, final String commandName, final String[] args) {
+		List<String> output = new ArrayList<>();
+		// simulate running logout, as in a real ssh shell
+		if(commandName.equals("exit")) output.add("logout");
+		output.add("Connection to mia.ws closed.");
+		session.getState().setAllowingInput(false);
+		return output;
 	}
 
 	@ShellCommand("help")
-	private CommandResponse commandHelp(final String commandName, final String[] args) {
+	private List<String> commandHelp(final ShellSession session, final String commandName, final String[] args) {
 		List<String> responseList = new ArrayList<>();
 		String version = SpringApplication.class.getPackage().getImplementationVersion();
 		responseList.add("MIAW bash, version %s-release (x86_64-pc-linux-miaw)".formatted(version));
@@ -166,10 +179,13 @@ public class ShellService {
 					responseList.add(commandUsageBuilder.toString());
 				});
 
-		return new CommandResponse(responseList);
+		return responseList;
 	}
 
-
+	@ShellCommand("ls")
+	private List<String> commandLs(final ShellSession session, final String commandName, final String[] args) {
+		return null; // todo
+	}
 
 	// have a fake neofetch/fastfetch
 	// also ofc the basics:
