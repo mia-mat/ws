@@ -26,7 +26,7 @@ public class ShellService {
 	public void login(HttpServletRequest request) {
 		lastLoginTimestamp = System.currentTimeMillis();
 
-		// if proxied through cloudflare, request should have these proxies.
+		// if proxied through cloudflare, request should have these headers.
 		// just generate a fake random one otherwise to not accidentally expose an IP.
 		if (request.getHeader("CF-Connecting-IP") != null
 				|| request.getHeader("X-Forwarded-For") != null
@@ -54,26 +54,53 @@ public class ShellService {
 			if(method.isAnnotationPresent(ShellCommand.class)
 			&& Arrays.equals(method.getParameterTypes(), new Class[]{String.class, String[].class})) {
 				ShellCommand commandAnnotation = method.getAnnotation(ShellCommand.class);
-				commandMethods.put(commandAnnotation.value(), method);
+				for (String s : commandAnnotation.value()) {
+					if(commandMethods.containsKey(s)) {
+						throw new RuntimeException("Tried to register shell command " + s + " twice");
+					}
+					commandMethods.put(s, method);
+				}
 			}
 		}
 	}
 
+	public static class CommandResponse {
+		private final List<String> lines;
+		private final boolean allowFutureInput;
+
+		public CommandResponse(List<String> lines, boolean allowFutureInput) {
+			this.lines = lines;
+			this.allowFutureInput = allowFutureInput;
+		}
+
+		public CommandResponse(List<String> lines) {
+			this(lines, true);
+		}
+
+		public List<String> getLines() {
+			return lines;
+		}
+
+		public boolean getAllowFutureInput() {
+			return allowFutureInput;
+		}
+	}
+
 	@SuppressWarnings("unchecked")
-	public List<String> executeCommand(final String command) {
+	public CommandResponse executeCommand(final String command) {
 		String[] args = command.split(" ");
 		for(int i = 0; i < args.length; i++) {
 			args[i] = args[i].replaceFirst("^\\s+", "").trim(); // remove whitespace
 		}
 
 		if(!commandMethods.containsKey(args[0])) {
-			return List.of("-bash: " + args[0] + ": command not found");
+			return new CommandResponse(List.of("-bash: " + args[0] + ": command not found"));
 		}
 
 		try {
-			return (List<String>) commandMethods.get(args[0]).invoke(this, args[0], Arrays.copyOfRange(args, 1, args.length));
+			return (CommandResponse) commandMethods.get(args[0]).invoke(this, args[0], Arrays.copyOfRange(args, 1, args.length));
 		} catch (Exception e) {
-			return List.of("error while executing command: " + args[0] + ": " + e.getMessage());
+			return new CommandResponse(List.of("error while executing command: " + args[0] + ": " + e.getMessage()));
 		}
 
 	}
@@ -81,19 +108,25 @@ public class ShellService {
 	@Target(ElementType.METHOD)
 	@Retention(RetentionPolicy.RUNTIME)
 	@interface ShellCommand {
-		String value(); // name
+		String[] value(); // aliases
 	}
 
 	@ShellCommand("echo")
-	private List<String> commandEcho(final String commandName, final String[] args) {
+	private CommandResponse commandEcho(final String commandName, final String[] args) {
 		String joinedArgs = String.join(" ", args);
-		return List.of(joinedArgs.split("\n", -1));
+		return new CommandResponse(List.of(joinedArgs.split("\n", -1)));
+	}
+
+	@ShellCommand({"exit"})
+	private CommandResponse commandExit(final String commandName, final String[] args) {
+		return new CommandResponse(List.of("logout", "Connection to mia.ws closed."), false);
 	}
 
 	// have a fake neofetch/fastfetch
 	// exit to just stop input
 	// also ofc the basics:
 	// cat, ls, cd...
+	// help
 	// just give no perms for most things with a message for that.
 
 

@@ -26,7 +26,7 @@ public class ShellController {
 
 	@PostMapping("/shell/execute")
 	@ResponseBody
-	public List<String> executeCommand(@RequestBody String command) {
+	public ShellService.CommandResponse executeCommand(@RequestBody String command) {
 		// JS gives us a sanitized input, but having actual \n's etc. is more useful here:
 		String unescapedCommand = StringEscapeUtils.unescapeJava(command);
 		return shellService.executeCommand(unescapedCommand);

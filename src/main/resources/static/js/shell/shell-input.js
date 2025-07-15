@@ -7,7 +7,10 @@ const linesContainer = document.getElementById("shell");
 
 const caretElement = document.getElementById("shell-caret");
 
+let allowFutureInput = true;
+
 let caretPosition = 0; // from left
+// TODO (Low Priority) >> Selection of a sequence of text through shift+arrows
 
 let currentLineElement;
 let currentStaticLineElement;
@@ -33,7 +36,6 @@ const keyHandlers = {
 
         caretPosition--;
         updateCaretVisualPosition();
-        // todo selection
     },
     Enter: async () => {
         if (commandHistory[0] !== "") {
@@ -81,13 +83,14 @@ const keyHandlers = {
         updateCaretVisualPosition();
     },
     Tab: () => {
-        // todo display possibilities
+        // TODO >> Could alternatively display possibilities
         appendToCurrentLine("\t");
     },
 };
 
 window.addEventListener('keydown', function (e) {
     e.preventDefault();
+    if(!allowFutureInput) return;
 
     if (keyHandlers[e.key]) {
         keyHandlers[e.key]();
@@ -99,6 +102,8 @@ window.addEventListener('keydown', function (e) {
 
 
 function newLine(staticContent) {
+    if(!allowFutureInput) return;
+
     currentLineElement = document.createElement('div')
     currentLineElement.classList.add("shell-line")
     linesContainer.appendChild(currentLineElement);
@@ -175,10 +180,12 @@ async function execCurrentLine() {
             return response.json();
         })
         .then(result => {
-            result.forEach(line => {
+            result.lines.forEach(line => {
                 newLine("");
                 appendToCurrentLine(line);
             })
+            allowFutureInput = result.allowFutureInput;
+            updateCaretVisibility();
         })
         .catch(err => {
             console.error("Fetch error:", err);
@@ -191,8 +198,14 @@ async function execCurrentLine() {
 
 let cachedCharWidth = null;
 
-function updateCaretVisualPosition() {
+function updateCaretVisibility() {
+    if(!allowFutureInput) {
+        caretElement.style.display = "none";
+    } else caretElement.style.display = "inline-flex";
+}
 
+function updateCaretVisualPosition() {
+    updateCaretVisibility();
 
     const lineHeight = parseFloat(window.getComputedStyle(currentLineInputElement).lineHeight);
     const lineWidth = currentLineElement.getBoundingClientRect().width;
@@ -201,7 +214,8 @@ function updateCaretVisualPosition() {
     const lineNumber = Math.floor(totalCharsBeforeCaret / charsPerLine)
     const columnNumber = totalCharsBeforeCaret % charsPerLine;
 
-    caretElement.style.left = `${columnNumber * cachedCharWidth}px`;
+    const magicOffset = -3; // manually fix alignment
+    caretElement.style.left = `${columnNumber * cachedCharWidth + magicOffset}px`;
     caretElement.style.top = `${lineNumber * lineHeight}px`;
 }
 
@@ -223,7 +237,6 @@ function getCharWidth() {
 }
 
 function getLine() {
-
     const lineWidth = currentLineElement.getBoundingClientRect().width;
 
     const totalCharsBeforeCaret = currentStaticLineElement.textContent.length + caretPosition;
