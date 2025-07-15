@@ -142,6 +142,7 @@ function newLine(staticContent) {
     currentLineElement.appendChild(caretElement);
 
     updateCaretVisualPosition();
+    window.scrollTo(0, document.body.scrollHeight); // scroll to bottom
 }
 
 function appendInputToCurrentLine(textToAppend, index = 0) {
@@ -178,6 +179,7 @@ function appendToCurrentLine(textToAppend, index = 0) {
     currentLineInputElement.textContent = newText;
 
     updateCaretVisualPosition();
+    window.scrollTo(0, document.body.scrollHeight); // scroll to bottom
 }
 
 async function execCurrentLine() {

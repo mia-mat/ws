@@ -1,8 +1,6 @@
 package ws.mia.service;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.util.ArrayUtils;
 import ws.mia.SpringApplication;
 
 import java.lang.annotation.ElementType;
@@ -41,20 +39,34 @@ public class ShellService {
 
 	// retrieve once
 	private static final Map<String, Method> commandMethods;
+
 	static {
 		commandMethods = new HashMap<>();
-		for (Method method : ShellService.class.getDeclaredMethods()) {
-			if(method.isAnnotationPresent(ShellCommand.class)
-			&& Arrays.equals(method.getParameterTypes(), new Class[]{String.class, String[].class})) {
-				ShellCommand commandAnnotation = method.getAnnotation(ShellCommand.class);
-				for (String s : commandAnnotation.value()) {
-					if(commandMethods.containsKey(s)) {
-						throw new RuntimeException("Tried to register shell command " + s + " twice");
-					}
-					commandMethods.put(s, method);
+		for (Method method : fetchAllShellCommands()) {
+			ShellCommand commandAnnotation = method.getAnnotation(ShellCommand.class);
+
+			if (commandAnnotation.value().length == 0) {
+				throw new RuntimeException("Shell command " + method.getName() + " has no aliases");
+			}
+
+			for (String s : commandAnnotation.value()) {
+				if (commandMethods.containsKey(s)) {
+					throw new RuntimeException("Tried to register shell command " + s + " twice");
 				}
+				commandMethods.put(s, method);
 			}
 		}
+	}
+
+	private static List<Method> fetchAllShellCommands() {
+		List<Method> methods = new ArrayList<>();
+		for (Method method : ShellService.class.getDeclaredMethods()) {
+			if (method.isAnnotationPresent(ShellCommand.class)
+					&& Arrays.equals(method.getParameterTypes(), new Class[]{String.class, String[].class})) {
+				methods.add(method);
+			}
+		}
+		return methods;
 	}
 
 	public static class CommandResponse {
@@ -81,11 +93,11 @@ public class ShellService {
 
 	public CommandResponse executeCommand(final String command) {
 		String[] args = command.split(" ");
-		for(int i = 0; i < args.length; i++) {
+		for (int i = 0; i < args.length; i++) {
 			args[i] = args[i].replaceFirst("^\\s+", "").trim(); // remove whitespace
 		}
 
-		if(!commandMethods.containsKey(args[0])) {
+		if (!commandMethods.containsKey(args[0])) {
 			return new CommandResponse(List.of("-bash: " + args[0] + ": command not found"));
 		}
 
@@ -101,12 +113,32 @@ public class ShellService {
 	@Retention(RetentionPolicy.RUNTIME)
 	@interface ShellCommand {
 		String[] value(); // aliases
+
+		String[] argUsages() default {};
 	}
 
-	@ShellCommand("echo")
+	final static String NBSP = "\u00A0"; // used in place of lines of entirely spaces for shell (html) to display properly
+
+	@ShellCommand(value = "echo", argUsages = "[arg ...]")
 	private CommandResponse commandEcho(final String commandName, final String[] args) {
 		String joinedArgs = String.join(" ", args);
-		return new CommandResponse(List.of(joinedArgs.split("\n", -1)));
+		String[] lines = joinedArgs.split("\n", -1);
+
+		List<String> output = new ArrayList<>();
+
+		for (String line : lines) {
+			if (line.isBlank()) {
+				output.add(NBSP);
+			} else {
+				output.add(line);
+			}
+		}
+
+		// at least one line
+		if (output.isEmpty()) {
+			output.add(NBSP);
+		}
+		return new CommandResponse(output);
 	}
 
 	@ShellCommand("exit")
@@ -119,16 +151,29 @@ public class ShellService {
 		List<String> responseList = new ArrayList<>();
 		String version = SpringApplication.class.getPackage().getImplementationVersion();
 		responseList.add("MIAW bash, version %s-release (x86_64-pc-linux-miaw)".formatted(version));
+		responseList.add("These shell commands are defined internally.  Type `help' to see this list.");
+		responseList.add(NBSP);
 
+		// avoid duplicate entries by fetching here rather than pulling from map, which has keys for all aliases
+		fetchAllShellCommands().stream()
+				.sorted(Comparator.comparing(Method::getName))
+				.forEach(method -> {
+					ShellCommand command = method.getAnnotation(ShellCommand.class);
+					StringBuilder commandUsageBuilder = new StringBuilder(command.value()[0]);
+					for (String s : command.argUsages()) {
+						commandUsageBuilder.append(" ").append(s);
+					}
+					responseList.add(commandUsageBuilder.toString());
+				});
 
 		return new CommandResponse(responseList);
 	}
 
+
+
 	// have a fake neofetch/fastfetch
-	// exit to just stop input
 	// also ofc the basics:
 	// cat, ls, cd...
-	// help
 	// just give no perms for most things with a message for that.
 
 
