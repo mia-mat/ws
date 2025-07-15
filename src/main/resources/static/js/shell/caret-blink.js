@@ -5,7 +5,7 @@ function updateCaretBlink() {
         caret.classList.add('blinking');
     } else {
         caret.classList.remove('blinking');
-        caret.style.opacity = '1'; // Ensure caret visible when not blinking
+        caret.style.opacity = '1'; // ensure caret visible when not blinking
     }
 }
 

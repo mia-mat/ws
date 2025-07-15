@@ -1,4 +1,21 @@
-const STATIC_INPUT_COMMAND_START = "[user@mia.ws ~]# "
+// fuck js
+
+const STATIC_INPUT_COMMAND_START = () => {
+    const homeDir = `/home/${shellState.username}`;
+    let dir;
+
+    if (shellState.currentDirectory === homeDir) {
+        dir = "~";
+    } else if (shellState.currentDirectory.startsWith(homeDir + "/")) {
+        // show only the last segment after ~/
+        dir = shellState.currentDirectory.substring(homeDir.length + 1).split("/").pop();
+    } else {
+        // outside ~, show last directory in full path
+        dir = shellState.currentDirectory.split("/").pop() || "/";
+    }
+
+    return `[${shellState.username}@mia.ws ${dir}]# `;
+};
 const STATIC_INPUT_CONTINUED = "> "
 
 const endsWithUnescapedBackslash = str => /(?<!\\)(?:\\\\)*\\$/.test(str);
@@ -7,7 +24,7 @@ const linesContainer = document.getElementById("shell");
 
 const caretElement = document.getElementById("shell-caret");
 
-let allowFutureInput = true;
+let shellState = {};
 
 let caretPosition = 0; // from left
 // TODO (Low Priority) >> Selection of a sequence of text through shift+arrows
@@ -53,7 +70,7 @@ const keyHandlers = {
 
         // exec command
         await execCurrentLine();
-        newLine(STATIC_INPUT_COMMAND_START);
+        newLine(STATIC_INPUT_COMMAND_START());
     },
     ArrowUp: () => {
         if (commandHistory.length <= inputHistoryPosition + 1) return;
@@ -83,8 +100,7 @@ const keyHandlers = {
         updateCaretVisualPosition();
     },
     Tab: () => {
-        // TODO >> Could alternatively display possibilities
-        appendToCurrentLine("\t");
+        // TODO >> display possibilities
     },
 };
 
@@ -97,7 +113,7 @@ const ctrlKeyHandlers = {
         inputHistoryPosition = 0;
         caretPosition = 0;
 
-        newLine(STATIC_INPUT_COMMAND_START);
+        newLine(STATIC_INPUT_COMMAND_START());
 
         // remove 1st element in position history as we don't want to save the Ctrl-C'd text
         commandHistory.splice(1, 1);
@@ -106,10 +122,10 @@ const ctrlKeyHandlers = {
 
 window.addEventListener('keydown', function (e) {
     e.preventDefault();
-    if(!allowFutureInput) return;
+    if (!shellState.allowingInput) return;
 
-    if(e.ctrlKey) {
-        if(ctrlKeyHandlers[e.key]) ctrlKeyHandlers[e.key]();
+    if (e.ctrlKey) {
+        if (ctrlKeyHandlers[e.key]) ctrlKeyHandlers[e.key]();
         return;
     }
 
@@ -123,7 +139,7 @@ window.addEventListener('keydown', function (e) {
 
 
 function newLine(staticContent) {
-    if(!allowFutureInput) return;
+    if (!shellState.allowingInput) return;
 
     currentLineElement = document.createElement('div')
     currentLineElement.classList.add("shell-line")
@@ -147,13 +163,13 @@ function newLine(staticContent) {
 
 function appendInputToCurrentLine(textToAppend, index = 0) {
     const line = getLine();
-    if(textToAppend === " " && line >= 1) {
+    if (textToAppend === " " && line >= 1) {
         const lineWidth = currentLineElement.getBoundingClientRect().width;
         const charsPerLine = Math.floor(lineWidth / getCharWidth());
 
-        const currentLineText =  (currentStaticLineElement.textContent + currentLineInputElement.textContent ).slice(charsPerLine*line)
+        const currentLineText = (currentStaticLineElement.textContent + currentLineInputElement.textContent).slice(charsPerLine * line)
 
-        if(currentLineText === "") {
+        if (currentLineText === "") {
             return; // prevent cursor jump
         }
     }
@@ -194,20 +210,27 @@ async function execCurrentLine() {
     await fetch('/shell/execute', {
         method: 'POST',
         headers: {
-            'Content-Type': 'text/plain',  // since your @RequestBody is String, plain text is fine
+            'Content-Type': 'text/plain',
         },
-        body: commandBuffer
+        body: commandBuffer,
+        credentials: "include"
     })
         .then(response => {
             if (!response.ok) throw new Error(`HTTP error ${response.status}`);
             return response.json();
         })
         .then(result => {
+            if(result.grantedRootAccess) {
+                window.location.href = "/"; // redirect to root
+                return;
+            }
+
             result.lines.forEach(line => {
                 newLine("");
                 appendToCurrentLine(line);
             })
-            allowFutureInput = result.allowFutureInput;
+
+            shellState = result.state;
             updateCaretVisibility();
         })
         .catch(err => {
@@ -222,7 +245,7 @@ async function execCurrentLine() {
 let cachedCharWidth = null;
 
 function updateCaretVisibility() {
-    if(!allowFutureInput) {
+    if (!shellState.allowingInput) {
         caretElement.style.display = "none";
     } else caretElement.style.display = "inline-flex";
 }
@@ -290,14 +313,62 @@ async function printMOTD() {
     })
 }
 
+async function updateState() {
+    shellState = await fetch('/shell/state', {
+        credentials: "include"
+    })
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            console.log(data)
+            return data;
+        })
+        .catch(err => {
+            console.error("Fetch error:", err);
+        });
+
+}
+
+async function resetSession() {
+    await fetch('/shell/resetSession', {
+        method: 'POST',
+        credentials: 'include'
+    }).catch(err => {
+        console.error("Fetch error:", err);
+    });
+}
+
+async function login() {
+    await fetch('/shell/login', {
+        method: 'POST',
+        credentials: 'include'
+    }).catch(err => {
+        console.error("Fetch error:", err);
+    });
+}
+
+
+
 // entry point
 async function main() {
+    // reload session on app start
+    await resetSession();
+
+    // get initial state
+    await updateState();
+
     await printMOTD();
 
+    // login after printing MOTD to not update last login time before it's printed
+    await login();
+
     // init starting line
-    newLine(STATIC_INPUT_COMMAND_START);
+    newLine(STATIC_INPUT_COMMAND_START());
 }
 
 main();
+
 
 
