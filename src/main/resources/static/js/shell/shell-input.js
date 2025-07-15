@@ -53,7 +53,7 @@ const keyHandlers = {
 
         // exec command
         await execCurrentLine();
-        newLine(STATIC_INPUT_COMMAND_START); // check if last char is '\' for continued, and add support for continuations through a buffer
+        newLine(STATIC_INPUT_COMMAND_START);
     },
     ArrowUp: () => {
         if (commandHistory.length <= inputHistoryPosition + 1) return;
@@ -88,9 +88,30 @@ const keyHandlers = {
     },
 };
 
+const ctrlKeyHandlers = {
+    c: () => {
+        appendInputToCurrentLine("^", caretPosition);
+        appendInputToCurrentLine("C", caretPosition);
+
+        commandHistory.unshift("");
+        inputHistoryPosition = 0;
+        caretPosition = 0;
+
+        newLine(STATIC_INPUT_COMMAND_START);
+
+        // remove 1st element in position history as we don't want to save the Ctrl-C'd text
+        commandHistory.splice(1, 1);
+    }
+}
+
 window.addEventListener('keydown', function (e) {
     e.preventDefault();
     if(!allowFutureInput) return;
+
+    if(e.ctrlKey) {
+        if(ctrlKeyHandlers[e.key]) ctrlKeyHandlers[e.key]();
+        return;
+    }
 
     if (keyHandlers[e.key]) {
         keyHandlers[e.key]();
@@ -121,6 +142,7 @@ function newLine(staticContent) {
     currentLineElement.appendChild(caretElement);
 
     updateCaretVisualPosition();
+    window.scrollTo(0, document.body.scrollHeight); // scroll to bottom
 }
 
 function appendInputToCurrentLine(textToAppend, index = 0) {
@@ -157,6 +179,7 @@ function appendToCurrentLine(textToAppend, index = 0) {
     currentLineInputElement.textContent = newText;
 
     updateCaretVisualPosition();
+    window.scrollTo(0, document.body.scrollHeight); // scroll to bottom
 }
 
 async function execCurrentLine() {
