@@ -22,12 +22,16 @@ body {
     margin-right: 2px;
     margin-bottom: 3px;
 
+    line-height: 1.2;
+
     display: block;
 
     max-width: 100%; /* wrap */
     width: 100%;
 
     white-space: pre-wrap; /* don't trim whitespace */
+
+    position: relative; /* for caret positioning */
 }
 
 .shell-line-input,
@@ -53,6 +57,11 @@ body {
     user-select: none;
 
     display: inline-flex;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
 }
 
 .blinking {
