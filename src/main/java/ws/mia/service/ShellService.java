@@ -3,6 +3,7 @@ package ws.mia.service;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.util.ArrayUtils;
+import ws.mia.SpringApplication;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -23,14 +24,13 @@ public class ShellService {
 
 	private String lastLoginAddress = "192.168.0.1"; // fake IP
 
-	public void login(HttpServletRequest request) {
+	public void login() {
 		lastLoginTimestamp = System.currentTimeMillis();
 
 		// just generate a fake random one to not accidentally expose an IP.
 		Random random = new Random();
 		// subnets higher than 16 look kinda weird
 		lastLoginAddress = "192.168." + random.nextInt(17) + "." + random.nextInt(256);
-
 	}
 
 	public List<String> getMOTD() {
@@ -79,7 +79,6 @@ public class ShellService {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public CommandResponse executeCommand(final String command) {
 		String[] args = command.split(" ");
 		for(int i = 0; i < args.length; i++) {
@@ -110,9 +109,19 @@ public class ShellService {
 		return new CommandResponse(List.of(joinedArgs.split("\n", -1)));
 	}
 
-	@ShellCommand({"exit"})
+	@ShellCommand("exit")
 	private CommandResponse commandExit(final String commandName, final String[] args) {
 		return new CommandResponse(List.of("logout", "Connection to mia.ws closed."), false);
+	}
+
+	@ShellCommand("help")
+	private CommandResponse commandHelp(final String commandName, final String[] args) {
+		List<String> responseList = new ArrayList<>();
+		String version = SpringApplication.class.getPackage().getImplementationVersion();
+		responseList.add("MIAW bash, version %s-release (x86_64-pc-linux-miaw)".formatted(version));
+
+
+		return new CommandResponse(responseList);
 	}
 
 	// have a fake neofetch/fastfetch

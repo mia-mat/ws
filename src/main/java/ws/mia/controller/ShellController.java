@@ -18,8 +18,8 @@ public class ShellController {
 	}
 
 	@RequestMapping("/")
-	public String getSite(HttpServletRequest request) {
-		shellService.login(request);
+	public String getSite() {
+		shellService.login();
 
 		return "shell";
 	}
