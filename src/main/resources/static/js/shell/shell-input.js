@@ -84,7 +84,7 @@ async function execCurrentLine() {
         body: commandBuffer
     })
         .then(response => {
-            if (!response.ok) throw new Error("HTTP error " + response.status);
+            if (!response.ok) throw new Error(`HTTP error ${response.status}`);
             return response.text();
         })
         .then(result => {
@@ -98,5 +98,34 @@ async function execCurrentLine() {
     commandBuffer = ""
 }
 
-// init first line
-newLine(STATIC_INPUT_COMMAND_START);
+async function printMOTD() {
+    const motdLines = await fetch('/shellMOTD')
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            return data;
+        })
+        .catch(err => {
+            console.error("Fetch error:", err);
+        });
+
+    motdLines.forEach(line => {
+        newLine(line);
+    })
+}
+
+// entry point
+async function main() {
+    await printMOTD();
+
+    // init starting line
+    newLine(STATIC_INPUT_COMMAND_START);
+}
+
+main();
+
+// motd
+
+
