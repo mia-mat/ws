@@ -1,6 +1,9 @@
 package ws.mia.service;
 
-public class CLIService {
+import org.springframework.stereotype.Service;
+
+@Service
+public class ShellService {
 
 
 
