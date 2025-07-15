@@ -1,12 +1,21 @@
 // fuck js
 
 const STATIC_INPUT_COMMAND_START = () => {
-    let dir = "~"
-    if(shellState.currentDirectory !== "/home/"+shellState.username) {
-       dir = shellState.currentDirectory;
+    const homeDir = `/home/${shellState.username}`;
+    let dir;
+
+    if (shellState.currentDirectory === homeDir) {
+        dir = "~";
+    } else if (shellState.currentDirectory.startsWith(homeDir + "/")) {
+        // show only the last segment after ~/
+        dir = shellState.currentDirectory.substring(homeDir.length + 1).split("/").pop();
+    } else {
+        // outside ~, show last directory in full path
+        dir = shellState.currentDirectory.split("/").pop() || "/";
     }
+
     return `[${shellState.username}@mia.ws ${dir}]# `;
-}
+};
 const STATIC_INPUT_CONTINUED = "> "
 
 const endsWithUnescapedBackslash = str => /(?<!\\)(?:\\\\)*\\$/.test(str);
@@ -326,6 +335,16 @@ async function resetSession() {
     });
 }
 
+async function login() {
+    await fetch('/shell/login', {
+        method: 'POST',
+        credentials: 'include'
+    }).catch(err => {
+        console.error("Fetch error:", err);
+    });
+}
+
+
 
 // entry point
 async function main() {
@@ -336,6 +355,9 @@ async function main() {
     await updateState();
 
     await printMOTD();
+
+    // login after printing MOTD to not update last login time before it's printed
+    await login();
 
     // init starting line
     newLine(STATIC_INPUT_COMMAND_START());

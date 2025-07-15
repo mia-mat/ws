@@ -19,6 +19,13 @@ public class VirtualDirectory extends VirtualFile{
 		children.put(child.getName(), child);
 	}
 
+	public void removeChild(String name) {
+		VirtualFile removed = children.remove(name);
+		if (removed != null) {
+			removed.setParent(null);
+		}
+	}
+
 	public VirtualFile getChild(String name) {
 		return children.get(name);
 	}
@@ -26,5 +33,10 @@ public class VirtualDirectory extends VirtualFile{
 	@Override
 	public boolean isDirectory() {
 		return true;
+	}
+
+	// dangerous
+	protected void clearChildren() {
+		this.children.clear();
 	}
 }

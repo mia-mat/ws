@@ -137,6 +137,7 @@ public class ShellState {
 
 	public VirtualDirectory getCurrentVirtualDirectory() {
 		VirtualFile file = getVirtualFile(getCurrentDirectory());
+		if(file == null) return null;
 		if(file instanceof VirtualDirectory) {
 			return (VirtualDirectory) file;
 		}

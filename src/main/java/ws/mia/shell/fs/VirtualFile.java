@@ -13,17 +13,21 @@ public abstract class VirtualFile implements Serializable {
 
 	private String name;
 
+	private boolean exists; // false if file has been deleted. This reference might just still hang around somehwere.
+
 	@JsonIgnore // infinite recursion is not fun
 	private VirtualDirectory parent;
 
 	public VirtualFile(String name, VirtualDirectory parent) {
 		this.name = name;
 		this.parent = parent;
+		this.exists = true;
 	}
 
 	public VirtualFile(String name) {
 		this.name = name;
 		this.parent = null; // set by addChild method of VirtualDirectory
+		this.exists = true;
 	}
 
 
@@ -56,5 +60,33 @@ public abstract class VirtualFile implements Serializable {
 	}
 
 	public abstract boolean isDirectory();
+
+	public void delete() {
+		ShellFSUtil.recursivelyDelete(this);
+	}
+
+	protected void setExists(boolean newState) {
+		this.exists = newState;
+	}
+
+	public boolean exists() {
+		return exists;
+	}
+
+	public boolean setName(String newName, boolean force) {
+		if(getParent() != null && getParent().exists()) {
+			if(getParent().getChildren().containsKey(newName) && !force) {
+				return false;
+			} else {
+				// direct operations on map to not change other properties
+				getParent().getChildren().remove(getName());
+				getParent().getChildren().put(newName, this);
+			}
+		}
+
+		this.name = newName;
+
+		return true;
+	}
 
 }

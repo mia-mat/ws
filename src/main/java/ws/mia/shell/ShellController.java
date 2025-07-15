@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Controller
+@RequestMapping("/shell")
 public class ShellController {
 
 	private final ShellService shellService;
@@ -16,10 +17,8 @@ public class ShellController {
 		this.shellService = shellService;
 	}
 
-	@RequestMapping("/")
+	@RequestMapping("")
 	public String getSite() {
-		shellService.login();
-
 		return "shell";
 	}
 
@@ -33,7 +32,14 @@ public class ShellController {
 		return shellSession;
 	}
 
-	@PostMapping("/shell/execute")
+	// set last login time
+	@PostMapping("/login")
+	@ResponseBody
+	public void login(HttpSession session) {
+		shellService.login();
+	}
+
+	@PostMapping("/execute")
 	@ResponseBody
 	public ShellService.CommandResponse executeCommand(@RequestBody String command, HttpSession session) {
 		ShellSession shellSession = getOrCreateShellSession(session);
@@ -43,19 +49,19 @@ public class ShellController {
 		return shellService.executeCommand(unescapedCommand, shellSession);
 	}
 
-	@GetMapping("/shell/state")
+	@GetMapping("/state")
 	@ResponseBody
 	public ShellState getState(HttpSession session) {
 		return getOrCreateShellSession(session).getState();
 	}
 
-	@GetMapping("/shell/motd")
+	@GetMapping("/motd")
 	@ResponseBody
 	public List<String> getLastLogin() {
 		return shellService.getMOTD();
 	}
 
-	@PostMapping("/shell/resetSession")
+	@PostMapping("/resetSession")
 	@ResponseBody
 	public void resetSession(HttpSession session) {
 		session.invalidate();
