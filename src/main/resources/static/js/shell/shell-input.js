@@ -2,10 +2,10 @@
 
 const STATIC_INPUT_COMMAND_START = () => {
     let dir = "~"
-    if(shellState.currentDirectory !== "/home/user") {
+    if(shellState.currentDirectory !== "/home/"+shellState.username) {
        dir = shellState.currentDirectory;
     }
-    return `[user@mia.ws ${dir}]# `;
+    return `[${shellState.username}@mia.ws ${dir}]# `;
 }
 const STATIC_INPUT_CONTINUED = "> "
 
@@ -91,8 +91,7 @@ const keyHandlers = {
         updateCaretVisualPosition();
     },
     Tab: () => {
-        // TODO >> Could alternatively display possibilities
-        appendToCurrentLine("\t");
+        // TODO >> display possibilities
     },
 };
 

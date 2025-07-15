@@ -13,15 +13,17 @@ import java.nio.file.Paths;
 public class ShellState {
 	private static final Path ROOT_INIT_PATH = Paths.get("src/main/resources/initial-fs").toAbsolutePath();
 
+	private String username;
 	private boolean allowingInput;
 
 	private String currentDirectory;
 	private final VirtualDirectory filesystem; // pointer to the root directory
 
 	public ShellState() {
+		this.username = "user";
 		this.allowingInput = true;
 		this.filesystem = createDefaultRoot();
-		this.currentDirectory = "/home/user";
+		this.currentDirectory = "/home/"+username;
 	}
 
 	public boolean isAllowingInput() {
@@ -34,6 +36,10 @@ public class ShellState {
 
 	public void setAllowingInput(boolean allowingInput) {
 		this.allowingInput = allowingInput;
+	}
+
+	public String getUsername() {
+		return username;
 	}
 
 	public void setCurrentDirectory(String currentDirectory) {
@@ -124,6 +130,7 @@ public class ShellState {
 		}
 		throw new RuntimeException("currentDirectory is a file!");
 	}
+
 
 
 }

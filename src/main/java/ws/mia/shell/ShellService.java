@@ -197,8 +197,12 @@ public class ShellService {
 		String concatArgs = String.join(" ", args);
 		VirtualFile file = session.getState().getRelativeVirtualFile(concatArgs);
 
+		if (file == null) {
+			return List.of("-bash: cd: %s: No such file or directory".formatted(concatArgs));
+		}
+
 		if(file.isDirectory()) {
-			return List.of("cat: %s: Is a directory".formatted(concatArgs));
+			return List.of("cat: %s: No such file or directory".formatted(concatArgs));
 		}
 
 		VirtualRegularFile regularFile = (VirtualRegularFile) file;
@@ -209,7 +213,16 @@ public class ShellService {
 	@ShellCommand(value = "cd", argUsages = "[name]")
 	private List<String> commandCd(final ShellSession session, final String commandName, final String[] args) {
 		String concatArgs = String.join(" ", args);
+
+		if (concatArgs.isEmpty()) {
+			concatArgs = "/home/"+session.getState().getUsername();
+		}
+
 		VirtualFile file = session.getState().getRelativeVirtualFile(concatArgs);
+
+		if (file == null) {
+			return List.of("-bash: cd: %s: No such file or directory".formatted(concatArgs));
+		}
 
 		if(!file.isDirectory()) {
 			return List.of("-bash: cd: %s: Not a directory".formatted(concatArgs));
