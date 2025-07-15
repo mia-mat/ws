@@ -232,8 +232,9 @@ public class ShellService {
 		return List.of();
 	}
 
-	// have a fake neofetch/fastfetch
-	// just give no perms for most things with a message for that, like sudo.
-
+	@ShellCommand("pwd")
+	private List<String> commandPwd(final ShellSession session, final String commandName, final String[] args) {
+		return List.of(session.getState().getCurrentDirectory());
+	}
 
 }

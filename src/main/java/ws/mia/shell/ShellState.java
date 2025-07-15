@@ -87,6 +87,14 @@ public class ShellState {
 
 		path = path.replace("\\", "/");
 
+		if (path.startsWith("~")) {
+			if (path.equals("~") || path.startsWith("~/")) {
+				path = "/home/"+username + path.substring(1);
+			} else {
+				return null; // not a real file, invalid syntax
+			}
+		}
+
 		String[] parts = path.split("/");
 
 		VirtualFile current = getFilesystem();
@@ -112,15 +120,19 @@ public class ShellState {
 
 		relativePath = relativePath.replace("\\", "/");
 
-		Path basePath = Paths.get(currentDirectory);
-		Path resolvedPath = basePath.resolve(relativePath).normalize();
+		if (relativePath.equals("~") || relativePath.startsWith("~/")) {
+			relativePath = "/home/" + username + relativePath.substring(1); // absolute
+		} else {
+			Path basePath = Paths.get(currentDirectory);
+			Path resolvedPath = basePath.resolve(relativePath).normalize();
+			relativePath = resolvedPath.toString().replace("\\", "/");
 
-		String fullPath = resolvedPath.toString().replace("\\", "/");
-		if (!fullPath.startsWith("/")) {
-			fullPath = "/" + fullPath; // ensure absolute
+			if (!relativePath.startsWith("/")) {
+				relativePath = "/" + relativePath;
+			}
 		}
 
-		return getVirtualFile(fullPath);
+		return getVirtualFile(relativePath);
 	}
 
 	public VirtualDirectory getCurrentVirtualDirectory() {
