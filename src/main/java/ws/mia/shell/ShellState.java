@@ -1,5 +1,6 @@
 package ws.mia.shell;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import ws.mia.shell.fs.VirtualDirectory;
 import ws.mia.shell.fs.VirtualFile;
 import ws.mia.shell.fs.VirtualRegularFile;
@@ -11,16 +12,27 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class ShellState {
-	private static final Path ROOT_INIT_PATH = Paths.get("src/main/resources/initial-fs").toAbsolutePath();
-	private static final Path LAUNCH_UI_FILE_PATH = ROOT_INIT_PATH.resolve("home\\user\\launch-ui.sh");
+
+	private static Path ROOT_INIT_PATH;
+	private static Path LAUNCH_UI_FILE_PATH;
 
 	private String username;
 	private boolean allowingInput;
 
 	private String currentDirectory;
+	@JsonIgnore
 	private final VirtualDirectory filesystem; // pointer to the root directory
 
-	public ShellState() {
+	public ShellState(boolean isProd) {
+		if(!isProd) {
+			ROOT_INIT_PATH = Paths.get("src/main/resources/initial-fs").toAbsolutePath();
+		} else {
+			ROOT_INIT_PATH = Paths.get("initial-fs");
+		}
+
+		LAUNCH_UI_FILE_PATH = ROOT_INIT_PATH.resolve("home/user/launch-ui.sh");
+
+
 		this.username = "user";
 		this.allowingInput = true;
 		this.filesystem = createDefaultRoot();
@@ -140,6 +152,7 @@ public class ShellState {
 		return getVirtualFile(relativePath);
 	}
 
+	@JsonIgnore
 	public VirtualDirectory getCurrentVirtualDirectory() {
 		VirtualFile file = getVirtualFile(getCurrentDirectory());
 		if(file == null) return null;

@@ -4,8 +4,8 @@ public class ShellSession {
 
 	private ShellState state;
 
-	public ShellSession() {
-		this.state = new ShellState();
+	public ShellSession(boolean isProd) {
+		this.state = new ShellState(isProd);
 	}
 
 	public ShellState getState() {

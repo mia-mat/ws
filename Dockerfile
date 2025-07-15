@@ -26,6 +26,9 @@ LABEL caddy.reverse_proxy="{{upstreams 8080}}"
 
 COPY --from=build /app/build/libs/*.jar ./app.jar
 
+COPY src/main/resources/initial-fs ./initial-fs
+
+
 EXPOSE 8080
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

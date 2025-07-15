@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import ws.mia.controller.RootController;
+import ws.mia.service.ProfileService;
 
 import java.util.List;
 
@@ -17,8 +18,11 @@ public class ShellController {
 
 	private final ShellService shellService;
 
-	public ShellController(ShellService shellService) {
+	ProfileService profileService;
+
+	public ShellController(ShellService shellService, ProfileService profileService) {
 		this.shellService = shellService;
+		this.profileService = profileService;
 	}
 
 	@RequestMapping("")
@@ -29,7 +33,7 @@ public class ShellController {
 	public ShellSession getOrCreateShellSession(HttpSession session) {
 		ShellSession shellSession = (ShellSession) session.getAttribute("shellSession");
 		if (shellSession == null) {
-			shellSession = new ShellSession();
+			shellSession = new ShellSession(profileService.isProd());
 			session.setAttribute("shellSession", shellSession);
 		}
 

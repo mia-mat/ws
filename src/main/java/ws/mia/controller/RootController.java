@@ -16,7 +16,7 @@ public class RootController {
 	public static final String ACCESS_TOKEN = UUID.randomUUID().toString();
 
 	@GetMapping
-	public String redirectToShell(@CookieValue(value = "rootAccessToken") String token) {
+	public String redirectToShell(@CookieValue(value = "rootAccessToken", defaultValue = "none") String token) {
 		if (token != null && token.equals(ACCESS_TOKEN)) {
 			return "root";
 		}
