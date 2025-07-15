@@ -40,6 +40,10 @@ public class ShellState {
 		this.currentDirectory = currentDirectory.replace("\\", "/");
 	}
 
+	public void setCurrentDirectory(VirtualDirectory directory) {
+		setCurrentDirectory(directory.getPath());
+	}
+
 	public VirtualDirectory getFilesystem() {
 		return filesystem;
 	}

@@ -1,6 +1,12 @@
 // fuck js
 
-const STATIC_INPUT_COMMAND_START = "[user@mia.ws ~]# "
+const STATIC_INPUT_COMMAND_START = () => {
+    let dir = "~"
+    if(shellState.currentDirectory !== "/home/user") {
+       dir = shellState.currentDirectory;
+    }
+    return `[user@mia.ws ${dir}]# `;
+}
 const STATIC_INPUT_CONTINUED = "> "
 
 const endsWithUnescapedBackslash = str => /(?<!\\)(?:\\\\)*\\$/.test(str);
@@ -55,7 +61,7 @@ const keyHandlers = {
 
         // exec command
         await execCurrentLine();
-        newLine(STATIC_INPUT_COMMAND_START);
+        newLine(STATIC_INPUT_COMMAND_START());
     },
     ArrowUp: () => {
         if (commandHistory.length <= inputHistoryPosition + 1) return;
@@ -99,7 +105,7 @@ const ctrlKeyHandlers = {
         inputHistoryPosition = 0;
         caretPosition = 0;
 
-        newLine(STATIC_INPUT_COMMAND_START);
+        newLine(STATIC_INPUT_COMMAND_START());
 
         // remove 1st element in position history as we don't want to save the Ctrl-C'd text
         commandHistory.splice(1, 1);
@@ -333,7 +339,7 @@ async function main() {
     await printMOTD();
 
     // init starting line
-    newLine(STATIC_INPUT_COMMAND_START);
+    newLine(STATIC_INPUT_COMMAND_START());
 }
 
 main();

@@ -194,10 +194,11 @@ public class ShellService {
 
 	@ShellCommand(value = "cat", argUsages = "[name]") // todo actually mirror cat features, not just print out
 	private List<String> commandCat(final ShellSession session, final String commandName, final String[] args) {
-		VirtualFile file = session.getState().getRelativeVirtualFile(String.join(" ", args));
+		String concatArgs = String.join(" ", args);
+		VirtualFile file = session.getState().getRelativeVirtualFile(concatArgs);
 
-		if(file instanceof VirtualDirectory) {
-			return List.of("cat: %s: Is a directory".formatted(file.getPath()));
+		if(file.isDirectory()) {
+			return List.of("cat: %s: Is a directory".formatted(concatArgs));
 		}
 
 		VirtualRegularFile regularFile = (VirtualRegularFile) file;
@@ -205,10 +206,21 @@ public class ShellService {
 		return List.of(lines);
 	}
 
+	@ShellCommand(value = "cd", argUsages = "[name]")
+	private List<String> commandCd(final ShellSession session, final String commandName, final String[] args) {
+		String concatArgs = String.join(" ", args);
+		VirtualFile file = session.getState().getRelativeVirtualFile(concatArgs);
+
+		if(!file.isDirectory()) {
+			return List.of("-bash: cd: %s: Not a directory".formatted(concatArgs));
+		}
+
+		session.getState().setCurrentDirectory((VirtualDirectory) file);
+		return List.of();
+	}
+
 	// have a fake neofetch/fastfetch
-	// also ofc the basics:
-	// cat, ls, cd...
-	// just give no perms for most things with a message for that.
+	// just give no perms for most things with a message for that, like sudo.
 
 
 }
