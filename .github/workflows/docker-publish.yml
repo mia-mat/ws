@@ -1,0 +1,61 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    env:
+      SERVER_WEBHOOK_URL: ${{ secrets.SERVER_WEBHOOK_URL }}
+      SERVER_WEBHOOK_SECRET: ${{ secrets.SERVER_WEBHOOK_SECRET }}
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        id: build
+        run: |
+          IMAGE=ghcr.io/${{ github.repository }}:master-${GITHUB_SHA::7}
+          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+          docker build -t $IMAGE .
+          docker push $IMAGE
+
+      - name: Notify host server
+        run: |
+          payload=$(jq -n \
+            --arg image "$IMAGE" \
+            --arg ref "refs/heads/master" \
+            --arg repo_name "${{ github.repository }}" \
+            --arg owner_login "${{ github.repository_owner }}" \
+            '{
+              image: $image,
+              ref: $ref,
+              repository: {
+                name: $repo_name,
+                owner: { login: $owner_login }
+              }
+            }'
+          )
+          signature="sha256=$(printf '%s' "$payload" \
+            | openssl dgst -sha256 -hmac "$SERVER_WEBHOOK_SECRET" \
+            | cut -d' ' -f2)"
+          curl -X POST "$SERVER_WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -H "X-Hub-Signature-256: $signature" \
+            -d "$payload"
