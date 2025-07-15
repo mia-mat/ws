@@ -303,7 +303,7 @@ async function updateState() {
             return response.json();
         })
         .then(data => {
-
+            console.log(data)
             return data;
         })
         .catch(err => {
@@ -316,12 +316,9 @@ async function resetSession() {
     await fetch('/shell/resetSession', {
         method: 'POST',
         credentials: 'include'
-    })
-        .then(result => {
-        })
-        .catch(err => {
-            console.error("Fetch error:", err);
-        });
+    }).catch(err => {
+        console.error("Fetch error:", err);
+    });
 }
 
 

@@ -2,6 +2,9 @@ package ws.mia.shell;
 
 import org.springframework.stereotype.Service;
 import ws.mia.SpringApplication;
+import ws.mia.shell.fs.VirtualDirectory;
+import ws.mia.shell.fs.VirtualFile;
+import ws.mia.shell.fs.VirtualRegularFile;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -184,7 +187,22 @@ public class ShellService {
 
 	@ShellCommand("ls")
 	private List<String> commandLs(final ShellSession session, final String commandName, final String[] args) {
-		return null; // todo
+		return Collections.singletonList(
+				String.join("  ", session.getState().getCurrentVirtualDirectory().getChildren().keySet())
+		);
+	}
+
+	@ShellCommand(value = "cat", argUsages = "[name]") // todo actually mirror cat features, not just print out
+	private List<String> commandCat(final ShellSession session, final String commandName, final String[] args) {
+		VirtualFile file = session.getState().getRelativeVirtualFile(String.join(" ", args));
+
+		if(file instanceof VirtualDirectory) {
+			return List.of("cat: %s: Is a directory".formatted(file.getPath()));
+		}
+
+		VirtualRegularFile regularFile = (VirtualRegularFile) file;
+		String[] lines = regularFile.getContent().split("\n", -1);
+		return List.of(lines);
 	}
 
 	// have a fake neofetch/fastfetch

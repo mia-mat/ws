@@ -56,6 +56,7 @@ public class ShellController {
 	}
 
 	@PostMapping("/shell/resetSession")
+	@ResponseBody
 	public void resetSession(HttpSession session) {
 		session.invalidate();
 	}
