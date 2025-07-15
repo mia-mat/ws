@@ -56,7 +56,7 @@ body {
 }
 
 .blinking {
-    animation: blink-animation 0.5s steps(1) infinite;
+    animation: blink-animation 0.8s steps(1) infinite;
 }
 
 @keyframes blink-animation {

@@ -87,7 +87,7 @@ public class ShellService {
 	@ShellCommand("echo")
 	private List<String> commandEcho(final String commandName, final String[] args) {
 		String joinedArgs = String.join(" ", args);
-		return List.of(joinedArgs.split("\n"));
+		return List.of(joinedArgs.split("\n", -1));
 	}
 
 	// have a fake neofetch/fastfetch
