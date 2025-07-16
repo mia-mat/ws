@@ -47,7 +47,7 @@ public class GitHubService {
 
 		this.mapper = new ObjectMapper();
 
-		this.cacheTimeout = 1000*60*60*6; // 6 hours default
+		this.cacheTimeout = 1000*60*60*24; // 1 day
 
 		this.publicRepoCache = new HashSet<>();
 

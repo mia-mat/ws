@@ -36,4 +36,6 @@ out/
 ### VS Code ###
 .vscode/
 
-src/main/resources/initial-fs/home/user/projects
+src/main/resources/initial-fs/home/user/projects/*
+!/src/main/resources/initial-fs/home/user/projects/
+!/src/main/resources/initial-fs/home/user/projects/github/
