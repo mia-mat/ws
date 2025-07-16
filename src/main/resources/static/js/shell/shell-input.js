@@ -99,8 +99,47 @@ const keyHandlers = {
         caretPosition++;
         updateCaretVisualPosition();
     },
-    Tab: () => {
-        // TODO >> display possibilities
+    Tab: async () => {
+        const text = currentLineInputElement.textContent;
+
+        // get the current word before the caret
+        const prefixMatch = text.slice(0, caretPosition).match(/(?:^|\s)(\S*)$/);
+        const prefix = prefixMatch ? prefixMatch[1] : "";
+
+        try {
+            const response = await fetch("/shell/suggest", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    prefix,
+                    fullInput: text,
+                }),
+                credentials: "include"
+            });
+
+            const {suggestions} = await response.json();
+            if (!suggestions || suggestions.length === 0) return;
+
+            if (suggestions.length === 1) {
+                // replace prefix with suggestion
+                const completion = suggestions[0];
+                const start = caretPosition - prefix.length;
+                currentLineInputElement.textContent = text.slice(0, start) + completion + text.slice(caretPosition);
+                caretPosition = start + completion.length;
+                updateCaretVisualPosition();
+                commandHistory[0] = currentLineInputElement.textContent;
+            } else {
+                // show options on intermediate line if multiple exist
+                newLine("");
+                appendToCurrentLine(suggestions.join("  "));
+                newLine(STATIC_INPUT_COMMAND_START());
+                appendToCurrentLine(text);
+                caretPosition = text.length;
+                updateCaretVisualPosition();
+            }
+        } catch (err) {
+            console.error("Fetch failed", err);
+        }
     },
 };
 
@@ -220,7 +259,7 @@ async function execCurrentLine() {
             return response.json();
         })
         .then(result => {
-            if(result.grantedRootAccess) {
+            if (result.grantedRootAccess) {
                 window.location.href = "/"; // redirect to root
                 return;
             }
@@ -347,7 +386,6 @@ async function login() {
         console.error("Fetch error:", err);
     });
 }
-
 
 
 // entry point

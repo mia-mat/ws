@@ -119,6 +119,61 @@ public class ShellService {
 		}
 	}
 
+	public List<String> suggest(String fullInput, String preCaretWord, ShellSession session) {
+		ShellState state = session.getState();
+
+		// If it's the first word (command), suggest commands and ./scripts
+		boolean isFirstWord = fullInput.trim().equals(preCaretWord) || fullInput.indexOf(' ') == -1;
+
+		Set<String> suggestions = new HashSet<>();
+
+		if (isFirstWord) {
+			if (preCaretWord.startsWith("./")) {
+				// ./scripts in current dir
+				String filePrefix = preCaretWord.substring(2); // remove leading ./
+				VirtualDirectory current = state.getCurrentVirtualDirectory();
+				if(current != null && current.exists()) {
+					for (VirtualFile child : current.getChildren().values()) {
+						if (!child.exists()) continue;
+						if (child.getName().startsWith(filePrefix) && child.getName().endsWith(".sh")) {
+							suggestions.add("./" + child.getName());
+						}
+					}
+				}
+			} else { // commands
+				suggestions.addAll(commandMethods.keySet().stream()
+						.filter(cmd -> cmd.startsWith(preCaretWord))
+						.toList());
+			}
+		} else { // file path
+			VirtualFile dir;
+			String prefixFile;
+
+			int lastSlash = preCaretWord.lastIndexOf('/');
+			if (lastSlash == -1) {
+				dir = state.getCurrentVirtualDirectory();
+				prefixFile = preCaretWord;
+			} else {
+				String pathToDir = preCaretWord.substring(0, lastSlash);
+				dir = state.getRelativeVirtualFile(pathToDir);
+				if (dir == null || !dir.exists() || dir.isDirectory()) return List.of(); // not a directory
+				prefixFile = preCaretWord.substring(lastSlash + 1);
+			}
+
+			if (dir instanceof VirtualDirectory directory && dir.exists()) {
+				for (VirtualFile file : directory.getChildren().values()) {
+					if (!file.exists()) continue;
+					if (file.getName().startsWith(prefixFile)) {
+						String suggestion = (lastSlash == -1 ? "" : preCaretWord.substring(0, lastSlash + 1)) + file.getName();
+						suggestions.add(suggestion);
+					}
+				}
+			}
+		}
+
+		return suggestions.stream().sorted().toList();
+	}
+
 	@SuppressWarnings("unchecked")
 	public CommandResponse executeCommand(final String command, ShellSession session) {
 		String[] args = command.split(" ");
