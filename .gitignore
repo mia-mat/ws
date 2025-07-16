@@ -39,4 +39,4 @@ out/
 
 /src/main/resources/initial-fs/home/user/projects/*
 
-!/src/main/resources/initial-fs/home/user/projects/github
+!/src/main/resources/initial-fs/home/user/projects/github.README
