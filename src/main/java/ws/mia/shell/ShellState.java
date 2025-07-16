@@ -1,16 +1,12 @@
 package ws.mia.shell;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.stereotype.Service;
 import ws.mia.service.GitHubService;
 import ws.mia.shell.fs.ShellFSUtil;
 import ws.mia.shell.fs.VirtualDirectory;
 import ws.mia.shell.fs.VirtualFile;
-import ws.mia.shell.fs.VirtualRegularFile;
 
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -30,10 +26,10 @@ public class ShellState {
 
 	public ShellState(GitHubService gitHubService, boolean isProd) {
 
-		if(!isProd) {
+		if (!isProd) {
 			ROOT_INIT_PATH = Paths.get("src/main/resources/initial-fs").toAbsolutePath();
 		} else {
-			ROOT_INIT_PATH = Paths.get("initial-fs"); // inside of a docker container
+			ROOT_INIT_PATH = Paths.get("initial-fs"); // inside a docker container
 		}
 
 		LAUNCH_UI_FILE_PATH = ROOT_INIT_PATH.resolve("home/user/launch-ui.sh");
@@ -43,7 +39,7 @@ public class ShellState {
 		this.username = "user";
 		this.allowingInput = true;
 		this.filesystem = createDefaultRoot();
-		this.currentDirectory = "/home/"+username;
+		this.currentDirectory = "/home/" + username;
 
 		new Thread(() -> {
 			ShellFSUtil.fetchAndGenerateProjectsDirectory(this, PROJECTS_PATH, gitHubService);
@@ -88,7 +84,6 @@ public class ShellState {
 	}
 
 
-
 	public VirtualFile getVirtualFile(String path) {
 		if (path == null || !path.startsWith("/")) {
 			throw new IllegalArgumentException("Path must be absolute and start with '/'");
@@ -98,7 +93,7 @@ public class ShellState {
 
 		if (path.startsWith("~")) {
 			if (path.equals("~") || path.startsWith("~/")) {
-				path = "/home/"+username + path.substring(1);
+				path = "/home/" + username + path.substring(1);
 			} else {
 				return null; // not a real file, invalid syntax
 			}
@@ -122,7 +117,7 @@ public class ShellState {
 	}
 
 	public VirtualFile getRelativeVirtualFile(String relativePath) {
-		if(relativePath.isEmpty()) {
+		if (relativePath.isEmpty()) {
 			return getVirtualFile(currentDirectory);
 		}
 
@@ -146,13 +141,12 @@ public class ShellState {
 	@JsonIgnore
 	public VirtualDirectory getCurrentVirtualDirectory() {
 		VirtualFile file = getVirtualFile(getCurrentDirectory());
-		if(file == null || !file.exists()) return null;
-		if(file instanceof VirtualDirectory) {
+		if (file == null || !file.exists()) return null;
+		if (file instanceof VirtualDirectory) {
 			return (VirtualDirectory) file;
 		}
 		throw new RuntimeException("currentDirectory is a file!");
 	}
-
 
 
 }

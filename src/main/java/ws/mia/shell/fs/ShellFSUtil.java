@@ -43,7 +43,7 @@ public class ShellFSUtil {
 			throw new RuntimeException("Could not find projects directory on disk");
 		}
 
-		projectsPath = "/"+projectsPath; // normalize for virtual fs
+		projectsPath = "/" + projectsPath; // normalize for virtual fs, since it needs a / prefix, while .resolve requires a non / prefix
 
 		VirtualFile virtualProjectFile = state.getVirtualFile(projectsPath);
 		if (virtualProjectFile == null || !virtualProjectFile.isDirectory() && !virtualProjectFile.exists()) {
@@ -128,7 +128,7 @@ public class ShellFSUtil {
 					String content = new String(contentBytes, StandardCharsets.ISO_8859_1);
 					VirtualRegularFile file = new VirtualRegularFile(entryName, content);
 
-					if(entry.equals(ShellState.LAUNCH_UI_FILE_PATH)) { // for launching into root, we need to identify this file if it gets moved etc.
+					if (entry.equals(ShellState.LAUNCH_UI_FILE_PATH)) { // for launching into root, we need to identify this file if it gets moved etc.
 						file.addAttribute(ShellService.LAUNCH_UI_ATTRIBUTE);
 					}
 

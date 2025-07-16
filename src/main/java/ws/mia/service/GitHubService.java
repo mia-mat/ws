@@ -3,7 +3,6 @@ package ws.mia.service;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -47,7 +46,7 @@ public class GitHubService {
 
 		this.mapper = new ObjectMapper();
 
-		this.cacheTimeout = 1000*60*60*24; // 1 day
+		this.cacheTimeout = 1000 * 60 * 60 * 24; // 1 day
 
 		this.publicRepoCache = new HashSet<>();
 
@@ -96,18 +95,18 @@ public class GitHubService {
 	}
 
 	public void cloneRepo(String repoName, File parent) {
-		if(!parent.isDirectory()) return;
+		if (!parent.isDirectory()) return;
 		// todo
 	}
 
 	private Collection<Repository> fetchPublicRepositories() {
-		if(GITHUB_USERNAME == null) return new ArrayList<>();
+		if (GITHUB_USERNAME == null) return new ArrayList<>();
 
 		String url = "https://api.github.com/users/" + GITHUB_USERNAME + "/repos";
 		ResponseEntity<Repository[]> response = restTemplate.getForEntity(url, Repository[].class);
 		Repository[] body = response.getBody();
 
-		if(body == null) {
+		if (body == null) {
 			return publicRepoCache; // fall back on old data
 		}
 
@@ -119,8 +118,8 @@ public class GitHubService {
 
 	// uses cached repositories if available
 	public Collection<Repository> getOrFetchPublicRepositories() {
-		if(GITHUB_USERNAME == null) return new ArrayList<>();
-		if(System.currentTimeMillis() < lastCacheTime + cacheTimeout || publicRepoCache.isEmpty()) {
+		if (GITHUB_USERNAME == null) return new ArrayList<>();
+		if (System.currentTimeMillis() < lastCacheTime + cacheTimeout || publicRepoCache.isEmpty()) {
 			publicRepoCache = fetchPublicRepositories();
 		}
 		return Collections.unmodifiableCollection(publicRepoCache);
@@ -128,7 +127,7 @@ public class GitHubService {
 	}
 
 	public void setCacheTimeout(long millis) {
-		if(millis > 0) cacheTimeout = millis;
+		if (millis > 0) cacheTimeout = millis;
 	}
 
 	public long getCacheTimeout() {
@@ -136,8 +135,8 @@ public class GitHubService {
 	}
 
 	public UsernamePasswordCredentialsProvider getCredentials() {
-		if(GITHUB_TOKEN == null) return null;
-		if(GITHUB_USERNAME == null) return null;
+		if (GITHUB_TOKEN == null) return null;
+		if (GITHUB_USERNAME == null) return null;
 		return new UsernamePasswordCredentialsProvider(GITHUB_USERNAME, GITHUB_TOKEN);
 	}
 
