@@ -115,14 +115,13 @@ public class ShellState {
 		String[] parts = path.split("/");
 
 		VirtualFile current = getFilesystem();
-
 		for (int i = 1; i < parts.length; i++) {
 			if (!(current instanceof VirtualDirectory dir)) {
 				return null; // trying to descend into a non-directory
 			}
-
 			current = dir.getChild(parts[i]);
-			if (current == null) {
+
+			if (current == null || !current.exists()) {
 				return null; // file not found
 			}
 		}
@@ -155,7 +154,7 @@ public class ShellState {
 	@JsonIgnore
 	public VirtualDirectory getCurrentVirtualDirectory() {
 		VirtualFile file = getVirtualFile(getCurrentDirectory());
-		if(file == null) return null;
+		if(file == null || !file.exists()) return null;
 		if(file instanceof VirtualDirectory) {
 			return (VirtualDirectory) file;
 		}

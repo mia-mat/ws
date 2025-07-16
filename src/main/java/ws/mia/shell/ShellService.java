@@ -227,7 +227,9 @@ public class ShellService {
 		}
 
 		if (target == null || !target.exists()) {
-			return List.of("ls: cannot access %s: No such file or directory".formatted(args[0]));
+			String filename = "";
+			if(args.length > 0) filename = args[0];
+			return List.of("ls: cannot access %s: No such file or directory".formatted(filename));
 		}
 
 		if (!target.isDirectory()) {
