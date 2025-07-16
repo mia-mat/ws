@@ -11,6 +11,7 @@ import ws.mia.controller.RootController;
 import ws.mia.service.ProfileService;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/shell")
@@ -73,6 +74,19 @@ public class ShellController {
 		}
 
 		return ResponseEntity.ok(response);
+	}
+
+	@PostMapping("/suggest")
+	@ResponseBody
+	public Map<String, Object> suggest(@RequestBody Map<String, Object> body, HttpSession session) {
+		ShellSession shellSession = getOrCreateShellSession(session);
+
+		String prefix = (String) body.get("prefix");
+		String fullInput = (String) body.get("fullInput");
+
+		List<String> suggestions = shellService.suggest(fullInput, prefix, shellSession);
+
+		return Map.of("suggestions", suggestions);
 	}
 
 	@GetMapping("/state")
