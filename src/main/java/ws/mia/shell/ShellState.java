@@ -1,6 +1,9 @@
 package ws.mia.shell;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.stereotype.Service;
+import ws.mia.service.GitHubService;
+import ws.mia.shell.fs.ShellFSUtil;
 import ws.mia.shell.fs.VirtualDirectory;
 import ws.mia.shell.fs.VirtualFile;
 import ws.mia.shell.fs.VirtualRegularFile;
@@ -13,30 +16,39 @@ import java.nio.file.Paths;
 
 public class ShellState {
 
-	private static Path ROOT_INIT_PATH;
-	private static Path LAUNCH_UI_FILE_PATH;
+	public static Path ROOT_INIT_PATH;
+	public static String PROJECTS_PATH;
+	public static Path LAUNCH_UI_FILE_PATH;
 
 	private String username;
 	private boolean allowingInput;
 
 	private String currentDirectory;
+
 	@JsonIgnore
 	private final VirtualDirectory filesystem; // pointer to the root directory
 
-	public ShellState(boolean isProd) {
+	public ShellState(GitHubService gitHubService, boolean isProd) {
+
 		if(!isProd) {
 			ROOT_INIT_PATH = Paths.get("src/main/resources/initial-fs").toAbsolutePath();
 		} else {
-			ROOT_INIT_PATH = Paths.get("initial-fs");
+			ROOT_INIT_PATH = Paths.get("initial-fs"); // inside of a docker container
 		}
 
 		LAUNCH_UI_FILE_PATH = ROOT_INIT_PATH.resolve("home/user/launch-ui.sh");
 
+		PROJECTS_PATH = "home/user/projects"; // relative to root
 
 		this.username = "user";
 		this.allowingInput = true;
 		this.filesystem = createDefaultRoot();
 		this.currentDirectory = "/home/"+username;
+
+		new Thread(() -> {
+			ShellFSUtil.fetchAndGenerateProjectsDirectory(this, PROJECTS_PATH, gitHubService);
+		}).start();
+
 	}
 
 	public boolean isAllowingInput() {
@@ -69,33 +81,13 @@ public class ShellState {
 
 	private VirtualDirectory createDefaultRoot() {
 		try {
-			return loadFromDisk(ROOT_INIT_PATH.getFileName().toString(), ROOT_INIT_PATH);
+			return ShellFSUtil.loadFromDisk(ROOT_INIT_PATH.getFileName().toString(), ROOT_INIT_PATH);
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to load initial virtual file system", e);
 		}
 	}
 
-	private VirtualDirectory loadFromDisk(String name, Path path) throws IOException {
-		VirtualDirectory dir = new VirtualDirectory(name);
 
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
-			for (Path entry : stream) {
-				String entryName = entry.getFileName().toString();
-				if (Files.isDirectory(entry)) {
-					dir.addChild(loadFromDisk(entryName, entry));
-				} else {
-					String content = Files.readString(entry);
-					VirtualRegularFile file = new VirtualRegularFile(entryName, content);
-					if(entry.equals(LAUNCH_UI_FILE_PATH)) {
-						file.addAttribute(ShellService.LAUNCH_UI_ATTRIBUTE);
-					}
-					dir.addChild(file);
-				}
-			}
-		}
-
-		return dir;
-	}
 
 	public VirtualFile getVirtualFile(String path) {
 		if (path == null || !path.startsWith("/")) {

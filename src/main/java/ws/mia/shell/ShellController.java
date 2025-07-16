@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import ws.mia.controller.RootController;
+import ws.mia.service.GitHubService;
 import ws.mia.service.ProfileService;
 
 import java.util.List;
@@ -19,11 +20,14 @@ public class ShellController {
 
 	private final ShellService shellService;
 
-	ProfileService profileService;
+	private final ProfileService profileService;
 
-	public ShellController(ShellService shellService, ProfileService profileService) {
+	private final GitHubService gitHubService;
+
+	public ShellController(ShellService shellService, ProfileService profileService, GitHubService gitHubService) {
 		this.shellService = shellService;
 		this.profileService = profileService;
+		this.gitHubService = gitHubService;
 	}
 
 	@RequestMapping("")
@@ -34,7 +38,7 @@ public class ShellController {
 	public ShellSession getOrCreateShellSession(HttpSession session) {
 		ShellSession shellSession = (ShellSession) session.getAttribute("shellSession");
 		if (shellSession == null) {
-			shellSession = new ShellSession(profileService.isProd());
+			shellSession = new ShellSession(gitHubService, profileService.isProd());
 			session.setAttribute("shellSession", shellSession);
 		}
 
@@ -47,7 +51,6 @@ public class ShellController {
 	public void login(HttpSession session) {
 		shellService.login();
 	}
-
 
 	@PostMapping("/execute")
 	@ResponseBody

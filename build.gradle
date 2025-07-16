@@ -24,4 +24,5 @@ dependencies {
 
     implementation 'com.googlecode.htmlcompressor:htmlcompressor:1.5.2'
     implementation 'org.apache.commons:commons-text:1.13.1'
+    implementation 'org.eclipse.jgit:org.eclipse.jgit:7.2.1.202505142326-r'
 }
