@@ -1,42 +1,50 @@
 package ws.mia.shell;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import ws.mia.service.GitHubService;
+import ws.mia.shell.fs.ShellFSUtil;
 import ws.mia.shell.fs.VirtualDirectory;
 import ws.mia.shell.fs.VirtualFile;
-import ws.mia.shell.fs.VirtualRegularFile;
 
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class ShellState {
 
-	private static Path ROOT_INIT_PATH;
-	private static Path LAUNCH_UI_FILE_PATH;
+	public static Path ROOT_INIT_PATH;
+	public static String PROJECTS_PATH;
+	public static Path LAUNCH_UI_FILE_PATH;
 
 	private String username;
 	private boolean allowingInput;
 
 	private String currentDirectory;
+
 	@JsonIgnore
 	private final VirtualDirectory filesystem; // pointer to the root directory
 
-	public ShellState(boolean isProd) {
-		if(!isProd) {
+	public ShellState(GitHubService gitHubService, boolean isProd) {
+
+		if (!isProd) {
 			ROOT_INIT_PATH = Paths.get("src/main/resources/initial-fs").toAbsolutePath();
 		} else {
-			ROOT_INIT_PATH = Paths.get("initial-fs");
+			ROOT_INIT_PATH = Paths.get("initial-fs"); // inside a docker container
 		}
 
 		LAUNCH_UI_FILE_PATH = ROOT_INIT_PATH.resolve("home/user/launch-ui.sh");
 
+		PROJECTS_PATH = "home/user/projects"; // relative to root
 
 		this.username = "user";
 		this.allowingInput = true;
 		this.filesystem = createDefaultRoot();
-		this.currentDirectory = "/home/"+username;
+		this.currentDirectory = "/home/" + username;
+
+		new Thread(() -> {
+			ShellFSUtil.fetchAndGenerateProjectsDirectory(this, PROJECTS_PATH, gitHubService);
+		}).start();
+
 	}
 
 	public boolean isAllowingInput() {
@@ -69,33 +77,12 @@ public class ShellState {
 
 	private VirtualDirectory createDefaultRoot() {
 		try {
-			return loadFromDisk(ROOT_INIT_PATH.getFileName().toString(), ROOT_INIT_PATH);
+			return ShellFSUtil.loadFromDisk(ROOT_INIT_PATH.getFileName().toString(), ROOT_INIT_PATH);
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to load initial virtual file system", e);
 		}
 	}
 
-	private VirtualDirectory loadFromDisk(String name, Path path) throws IOException {
-		VirtualDirectory dir = new VirtualDirectory(name);
-
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
-			for (Path entry : stream) {
-				String entryName = entry.getFileName().toString();
-				if (Files.isDirectory(entry)) {
-					dir.addChild(loadFromDisk(entryName, entry));
-				} else {
-					String content = Files.readString(entry);
-					VirtualRegularFile file = new VirtualRegularFile(entryName, content);
-					if(entry.equals(LAUNCH_UI_FILE_PATH)) {
-						file.addAttribute(ShellService.LAUNCH_UI_ATTRIBUTE);
-					}
-					dir.addChild(file);
-				}
-			}
-		}
-
-		return dir;
-	}
 
 	public VirtualFile getVirtualFile(String path) {
 		if (path == null || !path.startsWith("/")) {
@@ -106,7 +93,7 @@ public class ShellState {
 
 		if (path.startsWith("~")) {
 			if (path.equals("~") || path.startsWith("~/")) {
-				path = "/home/"+username + path.substring(1);
+				path = "/home/" + username + path.substring(1);
 			} else {
 				return null; // not a real file, invalid syntax
 			}
@@ -130,7 +117,7 @@ public class ShellState {
 	}
 
 	public VirtualFile getRelativeVirtualFile(String relativePath) {
-		if(relativePath.isEmpty()) {
+		if (relativePath.isEmpty()) {
 			return getVirtualFile(currentDirectory);
 		}
 
@@ -154,13 +141,12 @@ public class ShellState {
 	@JsonIgnore
 	public VirtualDirectory getCurrentVirtualDirectory() {
 		VirtualFile file = getVirtualFile(getCurrentDirectory());
-		if(file == null || !file.exists()) return null;
-		if(file instanceof VirtualDirectory) {
+		if (file == null || !file.exists()) return null;
+		if (file instanceof VirtualDirectory) {
 			return (VirtualDirectory) file;
 		}
 		throw new RuntimeException("currentDirectory is a file!");
 	}
-
 
 
 }
