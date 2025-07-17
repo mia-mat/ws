@@ -1,10 +1,11 @@
 package ws.mia.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import ws.mia.util.RequestUtil;
 
 import java.util.UUID;
 
@@ -16,11 +17,13 @@ public class RootController {
 	public static final String ACCESS_TOKEN = UUID.randomUUID().toString();
 
 	@GetMapping
-	public String redirectToShell(@CookieValue(value = "rootAccessToken", defaultValue = "none") String token) {
-		if (token != null && token.equals(ACCESS_TOKEN)) {
+	public String getRoot(@CookieValue(value = "rootAccessToken", defaultValue = "none") String token, HttpServletRequest request) {
+		if ((token != null && token.equals(ACCESS_TOKEN))
+		|| RequestUtil.isMobile(request)) {
 			return "root";
 		}
 		return "redirect:/shell";
 	}
+
 
 }
