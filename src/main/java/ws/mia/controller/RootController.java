@@ -5,10 +5,7 @@ import org.apache.coyote.Request;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ws.mia.service.DatabaseService;
-import ws.mia.service.GitHubService;
-import ws.mia.service.LoginService;
-import ws.mia.service.UptimeService;
+import ws.mia.service.*;
 import ws.mia.util.RequestUtil;
 
 import java.util.UUID;
@@ -22,15 +19,17 @@ public class RootController {
 	private final UptimeService uptimeService;
 	private final GitHubService gitHubService;
 	private final DatabaseService databaseService;
+	private final ProfileService profileService;
 
 
 	private LoginService loginService;
 
-	public RootController(LoginService loginService, UptimeService uptimeService, GitHubService gitHubService, DatabaseService databaseService) {
+	public RootController(LoginService loginService, UptimeService uptimeService, GitHubService gitHubService, DatabaseService databaseService, ProfileService profileService, ProfileService profileService1) {
 		this.loginService = loginService;
 		this.uptimeService = uptimeService;
 		this.gitHubService = gitHubService;
 		this.databaseService = databaseService;
+		this.profileService = profileService1;
 	}
 
 	@GetMapping
@@ -38,8 +37,9 @@ public class RootController {
 
 		if(RequestUtil.isDiscord(request)) return "og"; // for discord scraping OG tags.
 
-		if (!((token != null && token.equals(ACCESS_TOKEN))
-				|| RequestUtil.isMobile(request))) {
+		if(profileService.isProd() // if in dev, just go to shell manually. Typing the command every time can get annoying.
+				&& !RequestUtil.isMobile(request)
+				&& (token == null || !token.equals(ACCESS_TOKEN))) {
 			return "redirect:/shell";
 		}
 
@@ -51,7 +51,7 @@ public class RootController {
 		model.addAttribute("uptime", uptimeService.getFormattedUptime());
 		model.addAttribute("uptimeSeconds", uptimeService.getUptime().getSeconds());
 
-		model.addAttribute("mobile", RequestUtil.isMobile(request));
+		model.addAttribute("isMobile", RequestUtil.isMobile(request));
 
 		loginService.login();
 
