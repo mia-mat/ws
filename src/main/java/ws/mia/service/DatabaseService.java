@@ -7,6 +7,9 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.util.Date;
+
 @Service
 public class DatabaseService {
 	public static String MONGO_URI = System.getenv("MONGO_URI");
@@ -45,6 +48,7 @@ public class DatabaseService {
 			Document doc = new Document("address", address)
 					.append("name", name)
 					.append("email", email)
+					.append("createdAt", Date.from(Instant.now()))
 					.append("message", message);
 
 			collection.insertOne(doc);
