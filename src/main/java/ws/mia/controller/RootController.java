@@ -37,8 +37,10 @@ public class RootController {
 
 		if(RequestUtil.isDiscord(request)) return "og"; // for discord scraping OG tags.
 
+		boolean isMobile = RequestUtil.isMobile(request);
+
 		if(profileService.isProd() // if in dev, just go to shell manually. Typing the command every time can get annoying.
-				&& !RequestUtil.isMobile(request)
+				&& !isMobile
 				&& (token == null || !token.equals(ACCESS_TOKEN))) {
 			return "redirect:/shell";
 		}
@@ -51,7 +53,7 @@ public class RootController {
 		model.addAttribute("uptime", uptimeService.getFormattedUptime());
 		model.addAttribute("uptimeSeconds", uptimeService.getUptime().getSeconds());
 
-		model.addAttribute("isMobile", RequestUtil.isMobile(request));
+		model.addAttribute("isMobile", isMobile);
 
 		loginService.login();
 

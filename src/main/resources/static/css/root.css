@@ -1065,7 +1065,6 @@ footer {
     color: var(--accent-lilac);
     font-size: 1rem;
     user-select: none;
-
 }
 
 /* Lilac Particles */
@@ -1244,10 +1243,13 @@ footer {
         max-width: 80vw;
         white-space: nowrap;
         overflow-x: auto;
+        overflow-y: hidden;
 
         scrollbar-width: none;
         -ms-overflow-style: none;
+        -webkit-overflow-scrolling: touch;
 
+        touch-action: pan-x;
     }
 
     nav ul::-webkit-scrollbar {
