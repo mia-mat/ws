@@ -38,4 +38,13 @@ public class RequestUtil {
 		return ip;
 	}
 
+	// discord scrapes for OG tags etc., check if the user agent is from them
+	public static boolean isDiscord(String userAgent) {
+		return (userAgent != null && userAgent.contains("Discordbot"));
+	}
+
+	public static boolean isDiscord(HttpServletRequest request) {
+		return isDiscord(request.getHeader("User-Agent"));
+	}
+
 }

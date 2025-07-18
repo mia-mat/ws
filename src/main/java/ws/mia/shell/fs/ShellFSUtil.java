@@ -54,7 +54,6 @@ public class ShellFSUtil {
 
 		Collection<GitHubService.Repository> repos = github.getOrFetchPublicRepositories();
 		repos.forEach(repo -> {
-			System.out.println(repo);
 			String repoName = repo.getName();
 			File repoDir = new File(projectsFolderOnDisk, repoName);
 			try {

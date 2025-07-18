@@ -1,12 +1,12 @@
 // header scroll effect
-const header = document.getElementById('header');
-window.addEventListener('scroll', function () {
-    if (window.scrollY > 50) {
-        header.classList.add('header-scrolled');
-    } else {
-        header.classList.remove('header-scrolled');
+const navUl = document.querySelector('nav ul');
+navUl.addEventListener('wheel', function(e) {
+    if (e.deltaY !== 0) {
+        e.preventDefault(); // prevent vertical scroll
+        navUl.scrollLeft += e.deltaY; // scroll horizontally
     }
 });
+
 
 // smooth scrolling for navigation links
 document.querySelectorAll('nav a, .hero-buttons a').forEach(anchor => {
