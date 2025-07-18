@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import ws.mia.controller.RootController;
 import ws.mia.service.GitHubService;
+import ws.mia.service.LoginService;
 import ws.mia.service.ProfileService;
 
 import java.util.List;
@@ -24,10 +25,13 @@ public class ShellController {
 
 	private final GitHubService gitHubService;
 
-	public ShellController(ShellService shellService, ProfileService profileService, GitHubService gitHubService) {
+	private final LoginService loginService;
+
+	public ShellController(ShellService shellService, ProfileService profileService, GitHubService gitHubService, LoginService loginService) {
 		this.shellService = shellService;
 		this.profileService = profileService;
 		this.gitHubService = gitHubService;
+		this.loginService = loginService;
 	}
 
 	@RequestMapping("")
@@ -49,7 +53,7 @@ public class ShellController {
 	@PostMapping("/login")
 	@ResponseBody
 	public void login(HttpSession session) {
-		shellService.login();
+		loginService.login();
 	}
 
 	@PostMapping("/execute")

@@ -2,6 +2,7 @@ package ws.mia.shell;
 
 import org.springframework.stereotype.Service;
 import ws.mia.SpringApplication;
+import ws.mia.service.LoginService;
 import ws.mia.service.UptimeService;
 import ws.mia.shell.fs.VirtualDirectory;
 import ws.mia.shell.fs.VirtualFile;
@@ -22,31 +23,19 @@ import java.util.stream.Collectors;
 public class ShellService {
 
 	public static final String LAUNCH_UI_ATTRIBUTE = "LAUNCH_UI";
-	DateTimeFormatter MOTD_DATE_FORMATTER = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss yyyy", Locale.ENGLISH);
+	private static final DateTimeFormatter MOTD_DATE_FORMATTER = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss yyyy", Locale.ENGLISH);
 
 	private final UptimeService uptimeService;
+	private final LoginService loginService;
 
-	public ShellService(UptimeService uptimeService) {
+	public ShellService(UptimeService uptimeService, LoginService loginService) {
 		this.uptimeService = uptimeService;
-	}
-
-	private long lastLoginTimestamp = System.currentTimeMillis();
-
-	private String lastLoginAddress = "192.168.0.1"; // fake IP
-
-	public void login() {
-		lastLoginTimestamp = System.currentTimeMillis();
-
-		// just generate a fake random one to not accidentally expose an IP.
-		Random random = new Random();
-		// subnets higher than 16 look kinda weird
-		lastLoginAddress = "192.168." + random.nextInt(17) + "." + random.nextInt(256);
+		this.loginService = loginService;
 	}
 
 	public List<String> getMOTD() {
-		String formattedTime = Instant.ofEpochMilli(lastLoginTimestamp).atZone(ZoneId.systemDefault()).format(MOTD_DATE_FORMATTER);
 
-		return List.of("Last Login: " + formattedTime + " from " + lastLoginAddress);
+		return List.of("Last Login: " + loginService.getShellFormattedLastLoginTime() + " from " + loginService.getLastLoginAddress());
 	}
 
 	// retrieve once

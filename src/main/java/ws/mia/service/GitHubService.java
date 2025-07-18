@@ -30,9 +30,7 @@ public class GitHubService {
 	private long cacheTimeout;
 	private long lastCacheTime;
 
-	// key value is the repository's GitHub ID
 	private Collection<Repository> publicRepoCache;
-
 
 	public GitHubService() {
 		this.restTemplate = new RestTemplate();
