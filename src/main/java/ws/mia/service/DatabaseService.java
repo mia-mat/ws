@@ -16,6 +16,8 @@ public class DatabaseService {
 	private boolean active;
 
 	public DatabaseService() {
+		active = false;
+
 		if(MONGO_URI == null) {
 			throw new RuntimeException("Missing MongoDB URI env-var, shutting down database service.");
 		}
@@ -27,6 +29,8 @@ public class DatabaseService {
 		if(MONGO_MESSAGE_COLLECTION == null) {
 			throw new RuntimeException("Missing MongoDB Message Collection env-var, shutting down database service.");
 		}
+
+		active = true;
 	}
 
 	public void insertMessage(String address, String name, String email, String message) {
