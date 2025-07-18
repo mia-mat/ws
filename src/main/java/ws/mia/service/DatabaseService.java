@@ -6,13 +6,12 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.springframework.stereotype.Service;
-import ws.mia.util.RequestUtil;
 
 @Service
 public class DatabaseService {
 	public static String MONGO_URI = System.getenv("MONGO_URI");
 	public static String MONGO_DATABASE = System.getenv("MONGO_DATABASE");
-	public static String MONGO_COLLECTION = System.getenv("MONGO_COLLECTION");
+	public static String MONGO_MESSAGE_COLLECTION = System.getenv("MONGO_MESSAGE_COLLECTION");
 
 	private boolean active;
 
@@ -25,8 +24,8 @@ public class DatabaseService {
 			throw new RuntimeException("Missing MongoDB Database env-var, shutting down database service.");
 		}
 
-		if(MONGO_COLLECTION == null) {
-			throw new RuntimeException("Missing MongoDB Collection env-var, shutting down database service.");
+		if(MONGO_MESSAGE_COLLECTION == null) {
+			throw new RuntimeException("Missing MongoDB Message Collection env-var, shutting down database service.");
 		}
 	}
 
@@ -37,7 +36,7 @@ public class DatabaseService {
 
 		try (MongoClient mongoClient = MongoClients.create(MONGO_URI)) {
 			MongoDatabase database = mongoClient.getDatabase(MONGO_DATABASE);
-			MongoCollection<Document> collection = database.getCollection(MONGO_COLLECTION);
+			MongoCollection<Document> collection = database.getCollection(MONGO_MESSAGE_COLLECTION);
 
 			Document doc = new Document("address", address)
 					.append("name", name)

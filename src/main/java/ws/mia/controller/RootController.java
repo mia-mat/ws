@@ -34,8 +34,7 @@ public class RootController {
 
 	@GetMapping
 	public String getRoot(@CookieValue(value = "rootAccessToken", defaultValue = "none") String token, HttpServletRequest request, Model model) {
-
-
+		
 		if (!((token != null && token.equals(ACCESS_TOKEN))
 				|| RequestUtil.isMobile(request))) {
 			return "redirect:/shell";
