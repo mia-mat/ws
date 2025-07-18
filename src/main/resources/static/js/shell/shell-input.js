@@ -14,7 +14,7 @@ const STATIC_INPUT_COMMAND_START = () => {
         dir = shellState.currentDirectory.split("/").pop() || "/";
     }
 
-    return `[${shellState.username}@mia.ws ${dir}]# `;
+    return `[${shellState.username}@mia.ws ${dir}]$ `;
 };
 const STATIC_INPUT_CONTINUED = "> "
 

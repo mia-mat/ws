@@ -37,8 +37,6 @@ public class ShellFSUtil {
 	public static void fetchAndGenerateProjectsDirectory(ShellState state, String projectsPath, GitHubService github) {
 		// check disk to see if the repos exist
 		File projectsFolderOnDisk = ShellState.ROOT_INIT_PATH.resolve(projectsPath).toFile();
-		System.out.println(ShellState.ROOT_INIT_PATH);
-		System.out.println(projectsFolderOnDisk);
 		if (!projectsFolderOnDisk.isDirectory() || !projectsFolderOnDisk.exists()) {
 			throw new RuntimeException("Could not find projects directory on disk");
 		}

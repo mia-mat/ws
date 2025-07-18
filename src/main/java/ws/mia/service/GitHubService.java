@@ -32,7 +32,6 @@ public class GitHubService {
 
 	private Collection<Repository> publicRepoCache;
 
-
 	public GitHubService() {
 		this.restTemplate = new RestTemplate();
 

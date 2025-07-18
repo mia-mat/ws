@@ -1,11 +1,544 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>mia.ws</title>
-    <link rel="stylesheet" type="text/css" href="/css/root.css">
+
+    <!-- vector art thingies -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Source+Code+Pro:wght@400;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/root.css">
 </head>
 <body>
-<p><3</p>
-</body>
+<div class="particles" id="particles"></div>
 
+<div class="custom-cursor"></div>
+
+<!-- Header -->
+<header id="header">
+    <div class="container">
+        <div class="header-content">
+            <a href="#" class="logo">mia<span>.ws</span></a>
+            <nav>
+                <ul>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#skills">Skills</a></li>
+                    <li><a href="#projects">Projects</a></li>
+                    <li><a href="#hobbies">Hobbies</a></li>
+                    <li><a href="#timeline">Education</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<!-- Hero Section -->
+<section id="hero">
+    <div class="container">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>Hi! I'm <span>Mia</span></h1>
+                <h2>Software Developer &<br>Mathematician</h2>
+                <p>Designing elegant and maintainable systems that just work.</p>
+                <div class="hero-buttons">
+                    <a href="#projects" class="cta-button hero-button">Explore My Recent Projects</a>
+                    <a href="#contact" class="cta-button hero-button">Contact Me</a>
+                </div>
+            </div>
+
+            <div class="ssh-terminal">
+                <div class="terminal-content" id="terminal">
+                    <pre id="terminal-output">
+<span class="user-input">$ ssh guest@mia.ws</span>
+<span class="server-output"><span class="server-value">mia.ws</span> — Personal Website</span>
+<span class="server-output">Last login: <span class="server-value" th:text="${lastLoginTime}"></span> from <span class="server-value" th:text="${lastLoginAddress}"></span></span>
+<span class="server-output">-------------------------------------------------------</span>
+<span class="server-output">* Expertise:   <span class="server-value">Automation · System Design · Hardware · Logic</span></span>
+<span class="server-output">* Repos:       <span class="server-value" th:text="${githubUrl}">asd</span></span>
+<span class="server-output">* Projects:    <span class="server-value" th:text="${repoCount} + ' public repositories'"></span></span>
+<span class="server-output">* Infra:       <span class="server-value">Self Hosted · Spring · Docker · Caddy</span></span>
+<span class="server-output">* Uptime:      <span class="server-value" id="uptime" th:attr="data-uptime-seconds=${uptimeSeconds}" th:text="${uptime}"></span></span>
+<span class="server-output">-------------------------------------------------------</span>
+<span class="server-output">guest@mia.ws:~$ <span class="blinking-caret"></span></span></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section id="about">
+    <div class="container">
+        <div class="section-header">
+            <h2>About Me</h2>
+            <div class="divider"></div>
+            <p>I'm quite boring, really.</p>
+        </div>
+        <div class="about-content">
+            <div class="about-text">
+                <h3>focused on the finer details</h3>
+                <p>
+                    I'm Mia, a developer who got started with Java at age 10 by making video game mods.
+                    That early curiosity grew into a life-long passion and laid the foundation for a career in software and systems development.
+                </p>
+
+                <p>
+                    These days, I spend most of my time on web development and creating internal tooling, though I regularly explore new technologies through hobby projects. Recently, this has included a deep dive into local AI hosting and RAG systems.<br>
+                    I enjoy refining development workflows and building things that make life easier for myself and the people I work with.
+                    I'm passionate about writing maintainable code, building automation, and designing infrastructure that’s painless to work with.<br>
+                    I chase that feeling of planning out a clean software architecture and seeing it come alive through development.
+                </p>
+
+                <p>
+                    I love learning and expanding my grasp of contemporary technologies. Collaboration plays a massive role in helping me achieve this, as it provides access to mindsets completely dissimilar to mine, which often reveal details I overlooked or missed <br>
+                    Working closely alongside peers has taught me a lot, especially by seeing how they approach problem-solving and use tools or techniques that are unfamiliar to me. These fresh perspectives have often inspired me to rethink and improve my workflows.<br>
+                    <span>I love working alongside my friends <3 </span>
+                </p>
+            </div>
+            <div class="about-illustration">
+
+                    <div class="profile-circle">
+                        <img src="/img/miaws.png" alt="one of my cats" class="profile-image" />
+                    </div>
+
+            </div>
+    </div>
+    </div>
+</section>
+
+<!-- Skills Section -->
+<section id="skills">
+    <div class="container">
+        <div class="section-header">
+            <h2>Technical Skills</h2>
+            <div class="divider"></div>
+            <p>Technologies I specialize in</p>
+        </div>
+        <div class="skills-container">
+            <div class="skill-category card">
+                <h3><i class="fas fa-code"></i> Software</h3>
+                <div class="card-content">
+                    <div class="skill-list">
+                        <span class="skill-item">Java</span>
+                        <span class="skill-item">JavaScript</span>
+                        <span class="skill-item">Maven/Gradle</span>
+                        <span class="skill-item">Discord API</span>
+                        <span class="skill-item">Spring Boot/MVC</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="skill-category card">
+                <h3><i class="fas fa-cloud"></i> DevOps</h3>
+                <div class="card-content">
+                    <div class="skill-list">
+                        <span class="skill-item">Git</span>
+                        <span class="skill-item">Docker</span>
+                        <span class="skill-item">CI/CD</span>
+                        <span class="skill-item">Linux</span>
+                        <span class="skill-item">Kafka</span>
+                        <span class="skill-item">Nginx</span>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="skill-category card">
+                <h3><i class="fas fa-laptop"></i> Systems</h3>
+                <div class="card-content">
+                    <div class="skill-list">
+                        <span class="skill-item">Socket Programming</span>
+                        <span class="skill-item">JNA</span>
+                        <span class="skill-item">C/C++</span>
+                        <span class="skill-item">Internal Tooling</span>
+                        <span class="skill-item">Local AI</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Projects Section -->
+<section id="projects">
+    <div class="container">
+        <div class="section-header">
+            <h2>Recent Projects</h2>
+            <div class="divider"></div>
+            <p>My recent work</p>
+        </div>
+        <div class="projects-container">
+            <div class="project-card-horizontal">
+                <div class="project-icon-container">
+                    <i class="fas fa-ship"></i>
+                </div>
+                <div class="project-content">
+                    <h3 class="project-title">Personal CI/CD Pipeline</h3>
+                    <p class="project-description">Created an automated deployment pipeline to a Docker-based environment on a self-hosted Arch server,
+                        with robust security features and integrated reverse proxy support for web projects — including this one!</p>
+                    <div class="project-tech">
+                        <span class="tech-tag">Docker</span>
+                        <span class="tech-tag">Java</span>
+                        <span class="tech-tag">GitHub Actions</span>
+                        <span class="tech-tag">Webhooks</span>
+                        <span class="tech-tag">Caddy</span>
+                        <span class="tech-tag">Linux</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-card-horizontal">
+                <div class="project-icon-container">
+                    <i class="fas fa-terminal"></i>
+                </div>
+                <div class="project-content">
+                    <h3 class="project-title">Web-Based Interactive Shell Emulator</h3>
+                    <p class="project-description">
+                        Developed a browser-based shell emulator that simulates a Unix-style terminal session with a comprehensive set of common commands.
+                        The backend, built with Spring, manages a virtual filesystem per user session and features a modular command system designed for easy addition of new functionality.                 </p>
+                    <div class="project-tech">
+                        <span class="tech-tag">Web Development</span>
+                        <span class="tech-tag">JavaScript</span>
+                        <span class="tech-tag">Spring</span>
+                        <span class="tech-tag">Java</span>
+                        <span class="tech-tag">UI Design</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-card-horizontal">
+                <div class="project-icon-container">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <div class="project-content">
+                    <h3 class="project-title">Low-Level Interactive CPU Simulation Tool</h3>
+                    <p class="project-description">
+                        Engineered a customizable and interactive GUI-based simulator of a simplified processor architecture,
+                        supporting low-level assembly-style input and enabling real-time inspection and modification of individual RAM addresses during execution.
+                    </p>
+                    <div class="project-tech">
+                        <span class="tech-tag">Java</span>
+                        <span class="tech-tag">Swing</span>
+                        <span class="tech-tag">Interpreter Design</span>
+                        <span class="tech-tag">Hardware Architecture</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-card-horizontal">
+                <div class="project-icon-container">
+                    <i class="fas fa-cube"></i>
+                </div>
+                <div class="project-content">
+                    <h3 class="project-title">Video Game Modding</h3>
+                    <p class="project-description">
+                        Developed utility focused mods using Mixin and Forge. <br>
+                        Built a custom in-game GUI framework over LWJGL to streamline UI development.
+                    </p>
+                    <div class="project-tech">
+                        <span class="tech-tag">Java</span>
+                        <span class="tech-tag">Mixin</span>
+                        <span class="tech-tag">Forge</span>
+                        <span class="tech-tag">LWJGL</span>
+                        <span class="tech-tag">Low-Level UI Programming</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Hobbies Section -->
+<section id="hobbies">
+    <div class="container">
+        <div class="section-header">
+            <h2>Hobbies & Interests</h2>
+            <div class="divider"></div>
+            <p>Beyond software development</p>
+        </div>
+        <div class="hobbies-grid">
+            <div class="hobby-card">
+                <div class="hobby-icon">
+                    <i class="fas fa-calculator"></i>
+                </div>
+                <h3>Pure Mathematics</h3>
+                <p>My experience in A-Level Further Maths revealed to me the fun that can be had in solving complex problems in the abstract.</p>
+                <p>I enjoy many fields herein, but of most interest to me are advanced calculus and the interaction between complex numbers and ostensibly unrelated topics.</p>
+            </div>
+
+            <div class="hobby-card">
+                <div class="hobby-icon">
+                    <i class="fas fa-microchip"></i>
+                </div>
+                <h3>Hardware Tinkering</h3>
+                <p>Working with high-end consumer hardware through building computers and servers is a passion of mine.</p>
+                <p>I occasionally experiment with the Arduino platform, and find fun in reverse engineering consumer electronics.</p>
+            </div>
+
+            <div class="hobby-card">
+                <div class="hobby-icon">
+                    <i class="fas fa-pen-nib"></i>
+                </div>
+                <h3>Fountain Pens</h3>
+                <p>The tactility and preciseness of fountain pens, along with fun nib and ink options, has made me a frequent user.</p>
+                <p>For everyday writing, I rely on my Pelikan Souverän M400 and Pilot Custom 823</p>
+                <p>I'm particularly fond of my pens with stub nibs, as I find them really enjoyable to write with.</p>
+            </div>
+
+            <div class="hobby-card">
+                <div class="hobby-icon">
+                    <i class="fas fa-pizza-slice"></i>
+                </div>
+                <h3>Baking & Cooking</h3>
+                <p>My love of baking began through my experimentation with pizza during the pandemic.</p>
+                <p>That passion has since turned into a deep appreciation and enjoyment of the culinary arts as a whole.</p>
+            </div>
+
+            <div class="hobby-card">
+                <div class="hobby-icon">
+                    <i class="fas fa-shuttle-space"></i>
+                </div>
+                <h3>Space Exploration</h3>
+                <p>As the private space industry has grown, it has made development in rocket technology much more rapid and interesting.</p>
+                <p>Recently, the Starship programme has been of specific interest to me, having followed it since its first test flight.</p>
+            </div>
+
+
+            <div class="hobby-card">
+                <div class="hobby-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Finance & Politics</h3>
+                <p>I take personal finance seriously, and often deploy the full extent of my automation and software engineering skills to analyse this data.</p>
+                <p>Following geopolitics, geoeconomics, and the ever-changing world around us is fascinating to me. (although occasionally less fun)</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Education & Accolades Section -->
+<section id="timeline">
+    <div class="container">
+        <div class="section-header">
+            <h2>Education & Accolades</h2>
+            <div class="divider"></div>
+            <p>My academic journey and accomplishments</p>
+        </div>
+
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-content card">
+                    <div class="timeline-date">2023 - 2024</div>
+                    <h3>AS Level</h3>
+                    <p class="qualification-issuer">NPTC Group of Colleges</p>
+                    <p><span class="grade">(A)</span>&nbsp Mathematics</p>
+                    <p><span class="grade">(A)</span>&nbsp Further Mathematics</p>
+                    <p><span class="grade">(A)</span>&nbsp Computer Science</p>
+                    <p><span class="grade">(A)</span>&nbsp Economics</p>
+
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-content card">
+                    <div class="timeline-date">2024 - 2025</div>
+                    <h3>Creative Coding</h3>
+                    <p class="qualification-issuer">Cardiff Metropolitan University</p>
+                    <p>Final Grade: &nbsp<span class="grade">96%</span></p>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-content card">
+                    <div class="timeline-date">2024 - 2025</div>
+                    <h3>A Level</h3>
+                    <p class="qualification-issuer">NPTC Group of Colleges</p>
+                    <p><span class="grade">(?)</span>&nbsp Mathematics </p>
+                    <p><span class="grade">(?)</span>&nbsp Further Mathematics </p>
+                    <p><span class="grade">(?)</span>&nbsp Computer Science </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievements Section -->
+        <div class="achievements-container">
+            <h3 style="text-align: center; margin-bottom: 2rem; color: var(--accent-lilac); font-size: 1.8rem;">
+                Recognitions & Programmes</h3>
+            <div class="achievements-grid">
+                <div class="achievement-card">
+                    <div class="achievement-icon">
+                        <svg> <?xml version="1.0" encoding="utf-8"?> <!-- HTML is just so great in that you can't embed a file as a svg -.- -->
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="seren-icon-img">
+                                <path d="M16.9456 2.84731C18.3542 2.14979 19.0585 1.80104 19.5345 2.11769C20.0104 2.43435 19.9427 3.20671 19.8074 4.75143L19.7724 5.15106C19.7339 5.59003 19.7147 5.80951 19.7834 6.00845C19.852 6.2074 20.0008 6.36329 20.2984 6.67507L20.5694 6.95892C21.6166 8.05609 22.1402 8.60468 21.9676 9.16677C21.795 9.72887 21.0405 9.93221 19.5315 10.3389L19.1411 10.4441C18.7123 10.5597 18.4979 10.6175 18.3269 10.7517C18.156 10.8859 18.0478 11.0814 17.8314 11.4723L17.6344 11.8281C16.873 13.2038 16.4924 13.8916 15.9098 13.9223C15.3272 13.953 14.9285 13.3063 14.1312 12.013L13.925 11.6784C13.6984 11.3108 13.5851 11.1271 13.4108 11.0111C13.2365 10.8951 13.0208 10.86 12.5895 10.7898L12.1968 10.7259C10.6791 10.4789 9.92016 10.3554 9.7327 9.81228C9.54524 9.26918 10.0534 8.66616 11.0696 7.46012L11.3325 7.14811C11.6213 6.80539 11.7657 6.63403 11.8289 6.42812C11.8921 6.22222 11.867 6.00508 11.8168 5.57079L11.7711 5.17542C11.5945 3.64716 11.5062 2.88303 11.9729 2.51664C12.4396 2.15025 13.1523 2.42425 14.5776 2.97224L14.9464 3.11402C15.3514 3.26974 15.554 3.3476 15.7674 3.33634C15.9808 3.32508 16.1809 3.22598 16.5812 3.02776L16.9456 2.84731Z" fill="currentColor"/>
+                                <path d="M9.04452 11.3203C5.99048 13.2697 3.27111 16.7967 2.0908 20.0321C1.70785 21.0818 2.59069 22.0006 3.71668 22.0006H4.75C4.75007 21.6498 4.83224 21.2139 4.95372 20.7564C5.07876 20.2855 5.25886 19.743 5.48334 19.1616C5.93221 17.9992 6.57058 16.6505 7.33621 15.3652C8.09909 14.0845 9.0062 12.8366 10.0012 11.8992C10.0258 11.876 10.0506 11.853 10.0754 11.83C10.052 11.8229 10.0289 11.8157 10.0062 11.8084C9.72191 11.7169 9.36664 11.5713 9.04452 11.3203Z" fill="currentColor"/>
+                                <path d="M12.0202 12.2173C11.7015 12.4123 11.3705 12.67 11.0298 12.991C10.1729 13.7983 9.34809 14.9188 8.62489 16.1329C7.90444 17.3423 7.30253 18.6146 6.88264 19.7019C6.67275 20.2455 6.51136 20.7351 6.40349 21.1413C6.29223 21.5604 6.25008 21.8464 6.25 22.0006H9.08304C9.08314 20.8766 9.47243 18.7949 10.1769 16.7088C10.6939 15.1781 11.4097 13.5555 12.3322 12.2681L12.0202 12.2173Z" fill="currentColor"/>
+                                <path d="M13.2982 13.5134C12.6225 14.5571 12.0472 15.8587 11.5981 17.1888C10.9202 19.1961 10.5832 21.1042 10.583 22.0006H11.8718C12.9978 22.0006 13.9043 21.0942 13.9793 19.9804C14.1081 18.0663 14.4036 16.3411 14.7411 15.1142C14.407 14.918 14.1488 14.6602 13.9589 14.4372C13.7399 14.1801 13.5196 13.859 13.2982 13.5134Z" fill="currentColor"/>
+                            </svg></svg>
+                    </div>
+                    <h3 class="achievement-title">Seren Network</h3>
+                    <p>Welsh excellence programme for high-achieving students, providing opportunities for academic
+                        development and exclusive opportunities with partner universities.</p>
+                </div>
+
+                <div class="achievement-card">
+                    <div class="achievement-icon">
+                        <i class="fas fa-medal"></i>
+                    </div>
+                    <h3 class="achievement-title">GATE Programme</h3>
+                    <p>College programme for top students aimed at strengthening transferable skills, focusing on communication and learning.</p>
+                </div>
+
+                <div class="achievement-card">
+                    <div class="achievement-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3 class="achievement-title">Senior Maths Challenge</h3>
+                    <p>Silver Award achieved in the UKMT senior mathematical challenge during A-Level studies.</p>
+                </div>
+
+                <div class="achievement-card">
+                    <div class="achievement-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <h3 class="achievement-title">Seren Maths Competition</h3>
+                    <p>Bronze Certificate achieved in national mathematics competition.</p>
+                </div>
+
+                <div class="achievement-card">
+                    <div class="achievement-icon">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <h3 class="achievement-title">National AI & Data Science Summer Programme</h3>
+                    <p>Selected to join a UK-based programme focused on data science and AI, collaborating on real-world challenges in cryptography, and gaining insights from leading industry experts.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section id="contact">
+    <div class="container">
+        <div class="section-header">
+            <h2>Reach Out</h2>
+            <div class="divider"></div>
+            <p>Tell me about anything</p>
+        </div>
+        <div class="contact-container">
+            <div class="contact-info">
+                <div class="contact-card card">
+                    <div class="card-content">
+                        <h3>Contact Information</h3>
+                        <div class="contact-method">
+                            <a class="contact-link" href="mailto:deer@miaw.ws">
+                                <i class="fas fa-envelope"></i>
+                            </a>
+                            <div class="contact-details">
+                                <h4>Email</h4>
+<!--                                <p>contact@mia.ws</p> TODO move emails over to this domain -->
+                                <p>deer@miaw.ws</p>
+                            </div>
+                        </div>
+                        <div class="contact-method">
+                            <a class="contact-link" href="https://github.com/mia-mat" target="_blank">
+                                <i class="fab fa-github"></i>
+                            </a>
+                            <div class="contact-details">
+                                <h4>GitHub</h4>
+                                <p>github.com/mia-mat</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="contact-card card presence-card">
+                    <div class="card-content">
+                        <h3>Presence</h3>
+                        <p>I rarely use traditional social media, but I do have accounts on a few sites.</p>
+                        <div class="social-links">
+                            <a href="https://github.com/mia-mat" target="_blank" class="social-link">
+                                <i class="fab fa-github"></i>
+                            </a>
+                            <a href="https://www.linkedin.com/in/miaws/" target="_blank" class="social-link">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                            <a href="https://discord.com/users/218867034459602944" target="_blank" class="social-link">
+                                <i class="fab fa-discord"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="contact-card card">
+                <div class="card-content">
+                    <h3>Send a Message</h3>
+                    <form th:action="@{/postMessage}" method="post">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" name="name" placeholder="Your name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" placeholder="Your email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" placeholder="What do you want to tell me :3" required></textarea>
+                        </div>
+                        <button type="submit" class="cta-button">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Thank you message Popup -->
+<div id="thankYouPopup" class="popup-overlay">
+    <div class="popup-content">
+        <div class="popup-close" id="closePopup">
+            <i class="fas fa-times"></i>
+        </div>
+        <div class="popup-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3>Thank You!</h3>
+        <p>Your message has been sent successfully :3</p>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-logo">mia.ws</div>
+            <div class="footer-links">
+                <a href="#about">About</a>
+                <a href="#skills">Skills</a>
+                <a href="#projects">Projects</a>
+                <a href="#timeline">Education</a>
+                <a href="#hobbies">Hobbies</a>
+                <a href="#contact">Contact</a>
+            </div>
+            <p class="footer-heart">❤</p>
+        </div>
+    </div>
+</footer>
+
+<script> // pass through thymeleaf
+    const isMobile = /*[[${isMobile}]]*/ false;
+</script>
+
+<script src="/js/root/scroll.js"></script>
+<script src="/js/root/bubbles.js"></script>
+<script src="/js/root/cursor.js"></script>
+<script src="/js/root/sticky-colour.js"></script>
+<script src="/js/root/terminal-info.js"></script>
+<script src="/js/root/message-popup.js"></script>
+
+</body>
 </html>

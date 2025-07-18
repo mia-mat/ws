@@ -19,4 +19,23 @@ public class RequestUtil {
 		return isMobile(request.getHeader("User-Agent"));
 	}
 
+	public static String getClientAddress(HttpServletRequest request) {
+		// try to find de-proxied IP from cloudflare
+		String ip = request.getHeader("CF-Connecting-IP"); // cloudflare specific
+
+		if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+			ip = request.getHeader("X-Forwarded-For");
+			if (ip != null && !ip.isEmpty()) {
+				ip = ip.split(",")[0].trim(); // take the first IP in case of multiple
+			}
+		}
+
+		// if cloudflare forwarded ip not found, just give back the remote address
+		if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+			ip = request.getRemoteAddr();
+		}
+
+		return ip;
+	}
+
 }
