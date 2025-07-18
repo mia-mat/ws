@@ -1,6 +1,7 @@
 package ws.mia.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.coyote.Request;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +35,9 @@ public class RootController {
 
 	@GetMapping
 	public String getRoot(@CookieValue(value = "rootAccessToken", defaultValue = "none") String token, HttpServletRequest request, Model model) {
-		
+
+		if(RequestUtil.isDiscord(request)) return "og"; // for discord scraping OG tags.
+
 		if (!((token != null && token.equals(ACCESS_TOKEN))
 				|| RequestUtil.isMobile(request))) {
 			return "redirect:/shell";
