@@ -60,7 +60,7 @@
 <span class="server-output">-------------------------------------------------------</span>
 <span class="server-output">* Expertise:   <span class="server-value">Automation · System Design · Hardware · Logic</span></span>
 <span class="server-output">* Repos:       <span class="server-value" th:text="${githubUrl}">asd</span></span>
-<span class="server-output">* Projects:    <span class="server-value" th:text="${repoCount} + ' public repositories'"></span></span>
+<span class="server-output">* Projects:    <span class="server-value" id="terminal-repo-count">Loading...</span></span>
 <span class="server-output">* Infra:       <span class="server-value">Self Hosted · Spring · Docker · Caddy</span></span>
 <span class="server-output">* Uptime:      <span class="server-value" id="uptime" th:attr="data-uptime-seconds=${uptimeSeconds}" th:text="${uptime}"></span></span>
 <span class="server-output">-------------------------------------------------------</span>
@@ -440,7 +440,7 @@
                             </a>
                             <div class="contact-details">
                                 <h4>Email</h4>
-                                <p>contact@@mia.ws</p>
+                                <p>contact@mia.ws</p>
                             </div>
                         </div>
                         <div class="contact-method">
@@ -531,15 +531,15 @@
 </footer>
 
 <script th:inline="javascript"> // pass through thymeleaf
-    const isMobile = /*[[${isMobile}]]*/ false;
+    window.isMobile = /*[[${isMobile}]]*/ false;
 </script>
 
-<script src="/js/root/scroll.js"></script>
-<script src="/js/root/bubbles.js"></script>
-<script src="/js/root/cursor.js"></script>
-<script src="/js/root/sticky-colour.js"></script>
-<script src="/js/root/terminal-info.js"></script>
-<script src="/js/root/message-popup.js"></script>
+<script src="/js/root/scroll.js" type="module"></script>
+<script src="/js/root/bubbles.js" type="module"></script>
+<script src="/js/root/cursor.js" type="module"></script>
+<script src="/js/root/sticky-colour.js" type="module"></script>
+<script src="/js/root/terminal-info.js" type="module"></script>
+<script src="/js/root/message-popup.js" type="module"></script>
 
 </body>
 </html>

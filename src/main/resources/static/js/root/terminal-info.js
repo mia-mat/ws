@@ -24,5 +24,15 @@ function updateUptimeDisplay() {
     uptimeEl.textContent = formatUptime(uptimeSeconds++);
 }
 
+// uses GitHub API on server side (i.e. may take a while if uncached), so poll right after load for perf
+function updateRepoCount() {
+    fetch("/api/repoCount").then(resp => resp.text())
+        .then(resp => {
+            document.getElementById("terminal-repo-count").textContent = resp + " public repositories";
+        })
+}
+
+updateRepoCount();
+
 updateUptimeDisplay();
 setInterval(updateUptimeDisplay, 1000);

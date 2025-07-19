@@ -47,7 +47,6 @@ public class RootController {
 		model.addAttribute("lastLoginTime", loginService.getShellFormattedLastLoginTime());
 		model.addAttribute("lastLoginAddress", loginService.getLastLoginAddress());
 		model.addAttribute("githubUrl", "github.com/mia-mat/");
-		model.addAttribute("repoCount", gitHubService.getOrFetchPublicRepositories().size()); // could potentially do this in the background and push with a websocket/GET immediately from js
 		model.addAttribute("uptime", uptimeService.getFormattedUptime());
 		model.addAttribute("uptimeSeconds", uptimeService.getUptime().getSeconds());
 

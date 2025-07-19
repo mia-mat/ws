@@ -1,4 +1,5 @@
 const cursor = document.querySelector('.custom-cursor');
+const isMobile = window.isMobile;
 
 document.addEventListener('mousemove', (e) => {
 
