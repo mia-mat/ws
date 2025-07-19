@@ -1,7 +1,6 @@
 package ws.mia.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.coyote.Request;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -16,13 +15,12 @@ public class RootController {
 
 	// only allow connections to root with knowledge of this token. This makes the user go through shell, since that auto-fills it.
 	public static final String ACCESS_TOKEN = UUID.randomUUID().toString();
+
 	private final UptimeService uptimeService;
 	private final GitHubService gitHubService;
 	private final DatabaseService databaseService;
 	private final ProfileService profileService;
-
-
-	private LoginService loginService;
+	private final LoginService loginService;
 
 	public RootController(LoginService loginService, UptimeService uptimeService, GitHubService gitHubService, DatabaseService databaseService, ProfileService profileService, ProfileService profileService1) {
 		this.loginService = loginService;
@@ -35,11 +33,11 @@ public class RootController {
 	@GetMapping
 	public String getRoot(@CookieValue(value = "rootAccessToken", defaultValue = "none") String token, HttpServletRequest request, Model model) {
 
-		if(RequestUtil.isDiscord(request)) return "og"; // for discord scraping OG tags.
+		if (RequestUtil.isDiscord(request)) return "og"; // for discord scraping OG tags.
 
 		boolean isMobile = RequestUtil.isMobile(request);
 
-		if(profileService.isProd() // if in dev, just go to shell manually. Typing the command every time can get annoying.
+		if (profileService.isProd() // if in dev, just go to shell manually. Typing the command every time can get annoying.
 				&& !isMobile
 				&& (token == null || !token.equals(ACCESS_TOKEN))) {
 			return "redirect:/shell";
