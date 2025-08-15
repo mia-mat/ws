@@ -37,12 +37,6 @@ public class RootController {
 
 		boolean isMobile = RequestUtil.isMobile(request);
 
-		if (profileService.isProd() // if in dev, just go to shell manually. Typing the command every time can get annoying.
-				&& !isMobile
-				&& (token == null || !token.equals(ACCESS_TOKEN))) {
-			return "redirect:/shell";
-		}
-
 		// terminal widget info
 		model.addAttribute("lastLoginTime", loginService.getShellFormattedLastLoginTime());
 		model.addAttribute("lastLoginAddress", loginService.getLastLoginAddress());
