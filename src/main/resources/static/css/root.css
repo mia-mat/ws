@@ -858,9 +858,11 @@ nav a:hover::after {
     margin-bottom: 0.3rem;
 }
 
-.contact-details p {
+.contact-details p, .contact-details a {
     color: var(--text-secondary);
     font-size: 1rem;
+    text-decoration: none; /* removes underline */
+    font-weight: normal;   /* normal weight like <p> */
 }
 
 .social-links {
