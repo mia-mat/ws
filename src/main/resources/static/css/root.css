@@ -788,6 +788,10 @@ nav a:hover::after {
     color: var(--accent-lilac);
 }
 
+.achievement-card p span {
+    color: var(--text-secondary);
+}
+
 
 /* Contact Section */
 .contact-container {
