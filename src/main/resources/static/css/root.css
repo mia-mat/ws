@@ -1,0 +1,16 @@
+body {
+    background: rgb(13, 13, 13);
+    font-family: 'Consolas', 'Inconsolata', monospace;
+    font-size: 14px;
+    color: rgb(225, 193, 255);
+}
+
+a {
+    color: rgb(235 220 252);
+    text-decoration: none;
+}
+
+html {
+    scrollbar-color: rgb(221, 193, 254) #2c2c2c;
+}
+
