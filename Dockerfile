@@ -39,6 +39,8 @@ LABEL internal-port="8080"
 
 LABEL phoenix.source.master="mia.ws"
 LABEL phoenix.source.staging="ws-staging.mimi.pet"
+# Battlecode team dashboard (ws.mia.website.battlecode); staging serves it at /battlecode/
+LABEL phoenix.alias.master="battlecode.mia.ws"
 
 # Copy the built JAR from build stage
 COPY --from=build /app/target/*.jar ./app.jar

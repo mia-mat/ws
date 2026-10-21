@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <meta name="robots" content="noindex">
+    <title>yuri · battlecode</title>
+    <script>
+        // Apply a saved light/dark choice before first paint; default follows the OS.
+        try {
+            const theme = localStorage.getItem('bc-theme');
+            if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+        } catch (e) { /* storage blocked: follow the OS */ }
+    </script>
+    <link rel="stylesheet" href="/battlecode/dashboard.css">
+    <script src="/battlecode/dashboard.js" defer></script>
+</head>
+
+<body>
+    <header class="top">
+        <h1>yuri <span class="dim">· battlecode</span></h1>
+        <p id="status" class="status" role="status" aria-live="polite">loading…</p>
+        <button type="button" id="theme" class="ghost" aria-label="Colour theme">theme: auto</button>
+    </header>
+
+    <main id="app" th:data-feed="${feed}">
+        <section id="kpis" class="kpis" aria-label="Headline numbers"></section>
+
+        <section id="agents" class="card wide" aria-labelledby="agents-h">
+            <h2 id="agents-h">Agents on cumin</h2>
+            <div class="body"></div>
+        </section>
+
+        <section id="claude" class="card" aria-labelledby="claude-h">
+            <h2 id="claude-h">Claude budget</h2>
+            <div class="body"></div>
+        </section>
+
+        <section id="argon" class="card" aria-labelledby="argon-h">
+            <h2 id="argon-h">Argon (Gemini) budgets</h2>
+            <div class="body"></div>
+        </section>
+
+        <section id="ladder" class="card" aria-labelledby="ladder-h">
+            <h2 id="ladder-h">Ladder</h2>
+            <div class="body"></div>
+        </section>
+
+        <section id="panel" class="card" aria-labelledby="panel-h">
+            <h2 id="panel-h">Scrims and the 21:05 panel</h2>
+            <div class="body"></div>
+        </section>
+
+        <section id="issues" class="card wide" aria-labelledby="issues-h">
+            <h2 id="issues-h">Open issues</h2>
+            <div class="body"></div>
+        </section>
+    </main>
+
+    <footer class="foot">
+        <p id="foot"></p>
+        <noscript><p>This dashboard needs JavaScript to load the team's status feed.</p></noscript>
+    </footer>
+</body>
+
+</html>
